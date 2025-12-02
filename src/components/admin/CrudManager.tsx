@@ -12,17 +12,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { getCollectionData } from '@/lib/firestore';
 
 interface CrudManagerProps<T extends { id: string }> {
   collectionName: string;
   Schema: z.ZodObject<any, any, any>;
   formFields: (form: any) => React.ReactNode;
-  renderItem: (item: T, onEdit: (item: T) => void, onDelete: (id: string) => void) => React.ReactNode;
+  renderItem: (
+    item: T,
+    onEdit: (item: T) => void,
+    onDelete: (id: string) => void,
+    isReadonly: boolean
+  ) => React.ReactNode;
   title: string;
   description: string;
-  initialData: T[];
-  isLoading: boolean;
-  onDataChange: (data: T[]) => void;
 }
 
 export function CrudManager<T extends { id: string }>({
@@ -32,18 +35,26 @@ export function CrudManager<T extends { id: string }>({
   renderItem,
   title,
   description,
-  initialData,
-  isLoading,
-  onDataChange,
 }: CrudManagerProps<T>) {
   const firestore = useFirestore();
   const { toast } = useToast();
 
+  const [data, setData] = useState<T[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<T | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Derive default values from the Zod schema, ensuring no undefined values
+  React.useEffect(() => {
+    if (firestore) {
+      setIsLoading(true);
+      getCollectionData<T>(firestore, collectionName).then(items => {
+        setData(items as T[]);
+        setIsLoading(false);
+      });
+    }
+  }, [firestore, collectionName]);
+
   const defaultValues = React.useMemo(() => {
     const parsed = Schema.safeParse({});
     if (parsed.success) {
@@ -77,25 +88,25 @@ export function CrudManager<T extends { id: string }>({
     if (!window.confirm('Are you sure you want to delete this item?')) return;
     if (!firestore) return;
     deleteDocumentNonBlocking(doc(firestore, collectionName, id));
-    onDataChange(initialData.filter(item => item.id !== id));
+    setData(data.filter(item => item.id !== id));
     toast({ title: 'Success', description: 'Item deleted successfully.' });
   };
 
   const onSubmit = async (values: z.infer<typeof Schema>) => {
-    if(!firestore) return;
+    if (!firestore) return;
     setIsSubmitting(true);
     if (editingItem) {
       updateDocumentNonBlocking(doc(firestore, collectionName, editingItem.id), {
-        ...values
+        ...values,
       });
-      onDataChange(initialData.map(item => item.id === editingItem.id ? { ...editingItem, ...values } : item));
+      setData(data.map(item => item.id === editingItem.id ? { ...editingItem, ...values } : item));
       toast({ title: 'Success', description: 'Item updated successfully.' });
     } else {
       const newDocRef = await addDocumentNonBlocking(collection(firestore, collectionName), {
         ...values,
       });
       if (newDocRef) {
-        onDataChange([{ id: newDocRef.id, ...values } as T, ...initialData]);
+        setData([{ id: newDocRef.id, ...values } as T, ...data]);
       }
       toast({ title: 'Success', description: 'Item added successfully.' });
     }
@@ -108,8 +119,8 @@ export function CrudManager<T extends { id: string }>({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </div>
         <Button onClick={handleAddNew} size="sm">
           <Plus className="mr-2 h-4 w-4" />
@@ -119,8 +130,11 @@ export function CrudManager<T extends { id: string }>({
       <CardContent>
         {isLoading && <div className="flex justify-center"><Loader2 className="animate-spin" /></div>}
         <div className="space-y-4">
-          {initialData && initialData.map((item) => renderItem(item, handleEdit, handleDelete))}
-          {!isLoading && initialData && initialData.length === 0 && <p className="text-center text-muted-foreground">No items found.</p>}
+          {data && data.map((item) => {
+            const isReadonly = item.id.startsWith('local-');
+            return renderItem(item, handleEdit, handleDelete, isReadonly);
+          })}
+          {!isLoading && data && data.length === 0 && <p className="text-center text-muted-foreground">No items found.</p>}
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

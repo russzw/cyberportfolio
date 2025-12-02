@@ -8,6 +8,10 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { cn } from '@/lib/utils';
+import type { Testimonial } from '@/lib/types';
+
 
 const TestimonialSchema = z.object({
   author: z.string().min(1, 'Author is required.').default(''),
@@ -15,38 +19,56 @@ const TestimonialSchema = z.object({
   text: z.string().min(1, 'Testimonial text is required.').default(''),
 });
 
-type Testimonial = z.infer<typeof TestimonialSchema> & { id: string };
 
 const FormFields = (form: any) => (
   <>
     <FormField control={form.control} name="author" render={({ field }) => (
-      <FormItem><FormLabel>Author</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      <FormItem><FormLabel>Author</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
     )} />
     <FormField control={form.control} name="role" render={({ field }) => (
-      <FormItem><FormLabel>Author's Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      <FormItem><FormLabel>Author's Role</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
     )} />
     <FormField control={form.control} name="text" render={({ field }) => (
-      <FormItem><FormLabel>Testimonial</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+      <FormItem><FormLabel>Testimonial</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
     )} />
   </>
 );
 
-const RenderItem = (item: Testimonial, onEdit: (item: Testimonial) => void, onDelete: (id: string) => void) => (
-  <div key={item.id} className="flex items-start justify-between gap-4 rounded-lg border p-3">
+const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent>
+        <p>This is fallback data. Add it to Firestore to edit.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
+
+const RenderItem = (item: Testimonial, onEdit: (item: Testimonial) => void, onDelete: (id: string) => void, isReadonly: boolean) => (
+  <div key={item.id} className={cn("flex items-start justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/30")}>
     <div>
         <h4 className="font-semibold">{item.author} <span className="text-sm text-muted-foreground font-normal">- {item.role}</span></h4>
         <blockquote className="mt-1 text-sm text-muted-foreground italic">"{item.text}"</blockquote>
     </div>
-    <div className="flex gap-2">
-      <Button variant="outline" size="icon" onClick={() => onEdit(item)}><Pencil className="h-4 w-4" /></Button>
-      <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)}><Trash2 className="h-4 w-4" /></Button>
+    <div className="flex gap-2 shrink-0">
+        <ReadonlyTooltip>
+            <div className={cn(isReadonly && "cursor-not-allowed")}>
+                <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
+            </div>
+        </ReadonlyTooltip>
+        <ReadonlyTooltip>
+            <div className={cn(isReadonly && "cursor-not-allowed")}>
+                <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+        </ReadonlyTooltip>
     </div>
   </div>
 );
 
 export function TestimonialsManager() {
   return (
-    <CrudManager
+    <CrudManager<Testimonial>
       collectionName="testimonials"
       Schema={TestimonialSchema}
       formFields={FormFields}

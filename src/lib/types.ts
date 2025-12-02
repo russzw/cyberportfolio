@@ -8,11 +8,13 @@ export interface AboutData {
 }
 
 export interface Skill {
+  id: string;
   name: string;
   icon: string;
 }
 
 export interface ExperienceItem {
+  id: string;
   role: string;
   company: string;
   duration: string;
@@ -20,6 +22,7 @@ export interface ExperienceItem {
 }
 
 export interface Project {
+  id: string;
   name:string;
   description: string;
   tech: string[];
@@ -30,6 +33,7 @@ export interface Project {
 }
 
 export interface Testimonial {
+  id: string;
   author: string;
   role: string;
   text: string;
