@@ -39,6 +39,14 @@ export async function submitContactForm(
     };
   }
 
+  if (!adminDb) {
+     return {
+      success: false,
+      message: "Server is not configured to receive messages. Please set FIREBASE_SERVICE_ACCOUNT.",
+      errors: null,
+    };
+  }
+
   try {
     await adminDb.collection("contact_form_submissions").add({
       ...validatedFields.data,

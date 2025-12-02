@@ -2,32 +2,43 @@
 import { getApps, initializeApp, cert, App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-function getServiceAccount() {
-  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
-  if (!serviceAccount) {
-    // This error should be caught during development if the .env.local file is missing
-    // or the variable is not set in the deployment environment.
-    throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set.');
-  }
-  return JSON.parse(serviceAccount);
-}
+let adminApp: App | null = null;
 
-// Initialize the Firebase Admin SDK.
-// This block will only run on the server, where process.env.FIREBASE_SERVICE_ACCOUNT is available.
-if (!getApps().length) {
+function initializeAdminApp() {
+  if (getApps().some(app => app?.name === 'firebase-admin-app')) {
+     adminApp = getApps().find(app => app?.name === 'firebase-admin-app') || null;
+     return;
+  }
+
   try {
-    const serviceAccount = getServiceAccount();
-    initializeApp({
-      credential: cert(serviceAccount),
-    });
+    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
+    if (!serviceAccount) {
+      // Don't throw here, let getAdminDb handle the null case
+      console.warn('FIREBASE_SERVICE_ACCOUNT is not set. Admin features will be disabled.');
+      return;
+    }
+    
+    adminApp = initializeApp({
+      credential: cert(JSON.parse(serviceAccount)),
+    }, 'firebase-admin-app');
+
   } catch (e: any) {
-    console.error('Firebase Admin SDK initialization error:', e.stack);
-    // We throw an error here because the app cannot function without a properly initialized Admin SDK.
-    // This makes it clear that the environment is not configured correctly.
-    throw new Error('Failed to initialize Firebase Admin SDK. Check your service account credentials.');
+    console.error('Firebase Admin SDK initialization error:', e.message);
+    // Don't throw, allow the app to run without admin features
+    adminApp = null;
   }
 }
 
-// Export the initialized Firestore instance.
-// getApps()[0] is safe to use here because of the initialization block above.
-export const adminDb = getFirestore(getApps()[0]);
+
+function getAdminDb() {
+    if (!adminApp) {
+        initializeAdminApp();
+    }
+    if (!adminApp) {
+        // Return null if initialization failed
+        return null;
+    }
+    return getFirestore(adminApp);
+}
+
+export const adminDb = getAdminDb();
