@@ -14,10 +14,7 @@ import Image from 'next/image';
 const ProjectSchema = z.object({
   name: z.string().min(1, 'Name is required.').default(''),
   description: z.string().min(1, 'Description is required.').default(''),
-  tech: z.union([z.string(), z.array(z.string())]).default([]).transform(val => {
-    if (Array.isArray(val)) return val;
-    return val.split(',').map(s => s.trim()).filter(Boolean);
-  }),
+  tech: z.array(z.string()).default([]),
   imageUrl: z.string().url('Must be a valid URL.').default('https://picsum.photos/seed/placeholder/600/400'),
   imageHint: z.string().optional().default(''),
   liveUrl: z.string().url('Must be a valid URL.').default('https://example.com'),
@@ -38,7 +35,11 @@ const FormFields = (form: any) => (
       <FormItem>
         <FormLabel>Tech Stack (comma-separated)</FormLabel>
         <FormControl>
-          <Input {...field} value={Array.isArray(field.value) ? field.value.join(', ') : ''} />
+          <Input 
+            {...field} 
+            value={Array.isArray(field.value) ? field.value.join(', ') : ''}
+            onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+          />
         </FormControl>
         <FormMessage />
       </FormItem>
