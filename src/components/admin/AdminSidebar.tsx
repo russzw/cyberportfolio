@@ -15,7 +15,8 @@ import {
   Briefcase,
   Sparkles,
   User,
-  LayoutDashboard
+  LayoutDashboard,
+  Send
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const navLinks = [
   { href: '/admin/skills', label: 'Skills', icon: Sparkles },
   { href: '/admin/experience', label: 'Experience', icon: Briefcase },
   { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
+  { href: '/admin/submissions', label: 'Submissions', icon: Send },
 ];
 
 interface AdminSidebarProps {
