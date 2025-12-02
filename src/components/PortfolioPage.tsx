@@ -7,19 +7,17 @@ import { Skills } from "@/components/sections/Skills";
 import { Experience } from "@/components/sections/Experience";
 import { Projects } from "@/components/sections/Projects";
 import { Testimonials } from "@/components/sections/Testimonials";
-import { Contact } from "@/components/sections/Contact";
 import { getPortfolioData } from "@/lib/firestore";
 import type { PortfolioData } from "@/lib/types";
 import { useFirestore } from '@/firebase';
 import { Skeleton } from './ui/skeleton';
 import { Loader2 } from 'lucide-react';
-import { type ContactFormState } from '@/app/actions';
 
 interface PortfolioPageProps {
-  contactFormAction: (prevState: ContactFormState, formData: FormData) => Promise<ContactFormState>;
+  contactSection: React.ReactNode;
 }
 
-export function PortfolioPage({ contactFormAction }: PortfolioPageProps) {
+export function PortfolioPage({ contactSection }: PortfolioPageProps) {
   const firestore = useFirestore();
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -80,7 +78,7 @@ export function PortfolioPage({ contactFormAction }: PortfolioPageProps) {
       <Experience data={portfolioData.experience} />
       <Projects data={portfolioData.projects} />
       <Testimonials data={portfolioData.testimonials} />
-      <Contact contactFormAction={contactFormAction} />
+      {contactSection}
     </>
   );
 }

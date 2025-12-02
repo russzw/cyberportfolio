@@ -36,6 +36,7 @@ export function Contact({ contactFormAction }: ContactProps) {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   const initialState: ContactFormState = { success: false, message: "", errors: null };
 
@@ -46,6 +47,7 @@ export function Contact({ contactFormAction }: ContactProps) {
   React.useEffect(() => {
     if (state.success) {
       setShowSuccessMessage(true);
+      formRef.current?.reset();
       setName("");
       setEmail("");
       setMessage("");
@@ -75,7 +77,7 @@ export function Contact({ contactFormAction }: ContactProps) {
               <p className="text-muted-foreground">{state.message}</p>
             </div>
           ) : (
-            <form action={formAction} className="space-y-4">
+            <form ref={formRef} action={formAction} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
