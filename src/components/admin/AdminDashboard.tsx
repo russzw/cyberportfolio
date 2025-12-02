@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { doc } from 'firebase/firestore';
-import { useAuth, useDoc, useFirestore } from '@/firebase';
+import { useAuth, useDoc, useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Code } from 'lucide-react';
+import { MainContentForm } from './MainContentForm';
+import { useDocument } from '@/hooks/use-document';
+import { Skeleton } from '../ui/skeleton';
 
 interface AdminDashboardProps {
   user: User;
@@ -24,6 +26,14 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
   }, [firestore, user]);
 
   const { data: adminDoc, isLoading: isAdminLoading, error: adminError } = useDoc(adminCheckRef);
+  
+  // Fetch user_config
+  const userConfigRef = React.useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'user_config', 'main');
+  }, [firestore]);
+  
+  const { data: userConfig, isLoading: isConfigLoading, updateDocument, isUpdating } = useDocument(userConfigRef);
 
   const handleLogout = () => {
     if(auth) {
@@ -92,11 +102,36 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
         <Button onClick={handleLogout} variant="outline">Logout</Button>
       </div>
 
-      <div className="p-8 border rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Content Management</h2>
-        <p className="text-muted-foreground">
-          Content editing features will be available here soon.
-        </p>
+      <div className="grid gap-8">
+        {isConfigLoading ? (
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-24 w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-32" />
+                </CardContent>
+            </Card>
+        ) : (
+            <MainContentForm
+                data={userConfig || { heroText: '', heroSubtitle: '', aboutSection: '' }}
+                onSave={updateDocument}
+                isSaving={isUpdating}
+            />
+        )}
       </div>
     </div>
   );
