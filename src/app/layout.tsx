@@ -3,9 +3,8 @@ import './globals.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { ConditionalLayout } from '@/components/layout/ConditionalLayout';
 
 export const metadata: Metadata = {
   title: 'Russell Mutamba – Full-Stack Developer, Cloud & AI Portfolio',
@@ -33,11 +32,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
             <Toaster />
           </FirebaseClientProvider>
         </ThemeProvider>
