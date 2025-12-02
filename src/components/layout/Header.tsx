@@ -6,7 +6,7 @@ import { Flame, Menu } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -63,6 +63,7 @@ export default function Header() {
                 </Button>
                 </SheetTrigger>
                 <SheetContent side="right">
+                    <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                     <div className="flex flex-col gap-4 p-4">
                         <Link href="#home" className="mr-auto flex items-center gap-2 font-bold text-lg" onClick={closeMobileMenu}>
                             dev<Flame className="h-5 w-5 text-primary" />russ
