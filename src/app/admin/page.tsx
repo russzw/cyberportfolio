@@ -1,33 +1,54 @@
 'use client';
 
 import React from 'react';
-import { useUser } from '@/firebase';
-import { LoginForm } from '@/components/admin/LoginForm';
-import { AdminDashboard } from '@/components/admin/AdminDashboard';
-import { Loader2 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { MainContentForm } from '@/components/admin/MainContentForm';
+import { useDocument } from '@/hooks/use-document';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function AdminPage() {
-  const { user, isUserLoading, userError } = useUser();
+  const firestore = useFirestore();
 
-  if (isUserLoading) {
+  const userConfigRef = React.useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'user_config', 'main');
+  }, [firestore]);
+
+  const { data: userConfig, isLoading: isConfigLoading, updateDocument, isUpdating } = useDocument(userConfigRef);
+
+  if (isConfigLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-4 w-2/3" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </CardContent>
+      </Card>
     );
   }
 
-  if (userError) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-destructive">Error loading user: {userError.message}</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <LoginForm />;
-  }
-
-  return <AdminDashboard user={user} />;
+  return (
+    <MainContentForm
+      data={userConfig || { heroText: '', heroSubtitle: '', aboutSection: '' }}
+      onSave={updateDocument}
+      isSaving={isUpdating}
+    />
+  );
 }
