@@ -32,17 +32,17 @@
   }
 
   .dark {
-    --background: 0 0% 13%; /* #212121 */
+    --background: 0 0% 8%; /* A bit darker for more depth */
     --foreground: 210 40% 98%;
-    --card: 0 0% 15%;
+    --card: 0 0% 12%; /* Slightly lighter than background */
     --card-foreground: 210 40% 98%;
-    --popover: 0 0% 13%;
+    --popover: 0 0% 8%;
     --popover-foreground: 210 40% 98%;
     --primary: 288 84% 54%; /* #BE29EC */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 18%;
+    --secondary: 0 0% 15%; /* Slightly lighter than card */
     --secondary-foreground: 210 40% 98%;
-    --muted: 0 0% 18%;
+    --muted: 0 0% 15%;
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 128 100% 51%; /* #39FF14 */
     --accent-foreground: 0 0% 7%;

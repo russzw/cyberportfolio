@@ -15,7 +15,7 @@ import type { Testimonial } from "@/lib/types";
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <Card className="h-full flex flex-col bg-background/50 border-border/50 neon-border">
+    <Card className="h-full flex flex-col bg-card/80 border-border/50 neon-border">
       <CardHeader>
         <div className="flex items-center gap-4">
           <div>
@@ -25,7 +25,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        <blockquote className="italic text-foreground">
+        <blockquote className="italic text-foreground/80">
           “{testimonial.text}”
         </blockquote>
       </CardContent>

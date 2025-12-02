@@ -36,7 +36,7 @@ const FormFields = (form: any) => (
 );
 
 const RenderItem = (item: Testimonial, onEdit: (item: Testimonial) => void, onDelete: (id: string) => void, isReadonly: boolean) => (
-  <div key={item.id} className={cn("flex items-start justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/30")}>
+  <div key={item.id} className={cn("flex items-start justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/50")}>
     <div>
         <h4 className="font-semibold">{item.author} <span className="text-sm text-muted-foreground font-normal">- {item.role}</span></h4>
         <blockquote className="mt-1 text-sm text-muted-foreground italic">"{item.text}"</blockquote>

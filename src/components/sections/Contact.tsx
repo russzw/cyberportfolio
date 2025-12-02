@@ -58,7 +58,7 @@ export function Contact({ contactFormAction }: ContactProps) {
 
 
   return (
-    <Section id="contact" className="bg-secondary/20">
+    <Section id="contact" className="bg-secondary/50">
       <AnimatedTitle text="Contact Me" />
       <Card className="max-w-xl mx-auto neon-accent-border">
         <CardHeader>
@@ -69,11 +69,11 @@ export function Contact({ contactFormAction }: ContactProps) {
         </CardHeader>
         <CardContent>
           {showSuccessMessage ? (
-             <div className="flex flex-col items-center justify-center text-center p-8 rounded-lg bg-accent/20">
+             <div className="flex flex-col items-center justify-center text-center p-8 rounded-lg bg-accent/10 border border-accent/20">
               <div className="p-3 rounded-full bg-accent text-accent-foreground mb-4">
                 <Send className="h-6 w-6"/>
               </div>
-              <h3 className="text-xl font-bold text-accent-foreground">Message Sent!</h3>
+              <h3 className="text-xl font-bold">Message Sent!</h3>
               <p className="text-muted-foreground">{state.message}</p>
             </div>
           ) : (
