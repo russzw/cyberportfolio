@@ -40,14 +40,19 @@ export function Contact({ contactFormAction }: ContactProps) {
   const initialState: ContactFormState = { success: false, message: "", errors: null };
 
   const [state, formAction] = useActionState(contactFormAction, initialState);
+  
+  const [showSuccessMessage, setShowSuccessMessage] = React.useState(false);
 
   React.useEffect(() => {
     if (state.success) {
+      setShowSuccessMessage(true);
       setName("");
       setEmail("");
       setMessage("");
+    } else {
+      setShowSuccessMessage(false);
     }
-  }, [state.success]);
+  }, [state]);
 
 
   return (
@@ -61,7 +66,7 @@ export function Contact({ contactFormAction }: ContactProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {state.success ? (
+          {showSuccessMessage ? (
              <div className="flex flex-col items-center justify-center text-center p-8 rounded-lg bg-accent/20">
               <div className="p-3 rounded-full bg-accent text-accent-foreground mb-4">
                 <Send className="h-6 w-6"/>

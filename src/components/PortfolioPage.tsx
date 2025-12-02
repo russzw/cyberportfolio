@@ -13,9 +13,13 @@ import type { PortfolioData } from "@/lib/types";
 import { useFirestore } from '@/firebase';
 import { Skeleton } from './ui/skeleton';
 import { Loader2 } from 'lucide-react';
-import { submitContactForm } from '@/app/actions';
+import { type ContactFormState } from '@/app/actions';
 
-export function PortfolioPage() {
+interface PortfolioPageProps {
+  contactFormAction: (prevState: ContactFormState, formData: FormData) => Promise<ContactFormState>;
+}
+
+export function PortfolioPage({ contactFormAction }: PortfolioPageProps) {
   const firestore = useFirestore();
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -76,7 +80,7 @@ export function PortfolioPage() {
       <Experience data={portfolioData.experience} />
       <Projects data={portfolioData.projects} />
       <Testimonials data={portfolioData.testimonials} />
-      <Contact contactFormAction={submitContactForm} />
+      <Contact contactFormAction={contactFormAction} />
     </>
   );
 }
