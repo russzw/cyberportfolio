@@ -4,16 +4,19 @@ import React from 'react';
 import { doc } from 'firebase/firestore';
 import { useUser, useAuth, useFirestore, useMemoFirebase } from '@/firebase';
 import { useDoc } from '@/firebase/firestore/use-doc';
-
 import { Loader2 } from 'lucide-react';
 import { LoginForm } from '@/components/admin/LoginForm';
 import { AdminDashboard, AccessDeniedCard } from '@/components/admin/AdminDashboard';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const firestore = useFirestore();
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   const adminCheckRef = useMemoFirebase(() => {
     if (!user || !firestore) return null;
@@ -52,8 +55,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <AdminSidebar />
-      <AdminDashboard user={user}>
+      <div className="hidden md:block">
+        <AdminSidebar />
+      </div>
+       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent side="left" className="p-0 w-[280px]">
+          <AdminSidebar onLinkClick={() => setIsSheetOpen(false)} />
+        </SheetContent>
+      </Sheet>
+      <AdminDashboard user={user} onMenuClick={() => setIsSheetOpen(true)}>
         {children}
       </AdminDashboard>
     </div>

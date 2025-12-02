@@ -5,13 +5,15 @@ import type { User } from 'firebase/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { useAuth } from '@/firebase';
 import { Button } from '../ui/button';
+import { Menu } from 'lucide-react';
 
 interface AdminDashboardProps {
   user: User;
   children: React.ReactNode;
+  onMenuClick?: () => void;
 }
 
-export function AdminDashboard({ user, children }: AdminDashboardProps) {
+export function AdminDashboard({ user, children, onMenuClick }: AdminDashboardProps) {
   const auth = useAuth();
   
   const handleLogout = () => {
@@ -22,9 +24,20 @@ export function AdminDashboard({ user, children }: AdminDashboardProps) {
   
   return (
     <div className="flex flex-col h-screen">
-      <header className="flex h-14 items-center justify-between border-b bg-background px-4 lg:px-6">
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-semibold">Admin Panel</h1>
+       <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <div className="flex items-center gap-2 md:hidden">
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0"
+            onClick={onMenuClick}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </div>
+        <div className="flex-1">
+            {/* Can add a search bar here later if needed */}
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground hidden md:inline-block">
