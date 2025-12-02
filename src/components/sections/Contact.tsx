@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -29,14 +30,20 @@ function SubmitButton() {
 
 export function Contact() {
   const formRef = React.useRef<HTMLFormElement>(null);
+  const [isSuccess, setIsSuccess] = React.useState(false);
   const initialState: ContactFormState = { success: false, message: "", errors: null };
-  const [state, formAction] = useActionState(submitContactForm, initialState);
 
-  React.useEffect(() => {
-    if (state.success) {
+  const [state, formAction] = useActionState(async (prevState, formData) => {
+    const result = await submitContactForm(prevState, formData);
+    if (result.success) {
+      setIsSuccess(true);
       formRef.current?.reset();
+    } else {
+      setIsSuccess(false);
     }
-  }, [state]);
+    return result;
+  }, initialState);
+
 
   return (
     <Section id="contact" className="bg-secondary/20">
@@ -49,7 +56,7 @@ export function Contact() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {state.success ? (
+          {isSuccess ? (
              <div className="flex flex-col items-center justify-center text-center p-8 rounded-lg bg-accent/20">
               <div className="p-3 rounded-full bg-accent text-accent-foreground mb-4">
                 <Send className="h-6 w-6"/>
