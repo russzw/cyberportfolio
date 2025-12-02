@@ -7,12 +7,13 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { getCollectionData } from '@/lib/firestore';
+import { Skeleton } from '../ui/skeleton';
 
 interface CrudManagerProps<T extends { id: string }> {
   collectionName: string;
@@ -26,6 +27,7 @@ interface CrudManagerProps<T extends { id: string }> {
   ) => React.ReactNode;
   title: string;
   description: string;
+  itemSkeleton: React.ReactNode;
 }
 
 export function CrudManager<T extends { id: string }>({
@@ -35,6 +37,7 @@ export function CrudManager<T extends { id: string }>({
   renderItem,
   title,
   description,
+  itemSkeleton
 }: CrudManagerProps<T>) {
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -122,22 +125,13 @@ export function CrudManager<T extends { id: string }>({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>
-        <Button onClick={handleAddNew} size="sm">
-          <Plus className="mr-2 h-4 w-4" />
-          Add New
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoading && <div className="flex justify-center"><Loader2 className="animate-spin" /></div>}
-        <div className="space-y-4">
-          {data && data.map((item) => {
-            const isReadonly = item.id.startsWith('local-');
-            return renderItem(item, handleEdit, handleDelete, isReadonly);
-          })}
-          {!isLoading && data && data.length === 0 && <p className="text-center text-muted-foreground">No items found.</p>}
-        </div>
-
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={handleAddNew} size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Add New
+            </Button>
+          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingItem ? `Edit ${title.slice(0,-1)}` : `Add New ${title.slice(0,-1)}`}</DialogTitle>
@@ -153,6 +147,24 @@ export function CrudManager<T extends { id: string }>({
             </FormProvider>
           </DialogContent>
         </Dialog>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {isLoading ? (
+            <>
+              {itemSkeleton}
+              {itemSkeleton}
+              {itemSkeleton}
+            </>
+          ) : data.length > 0 ? (
+            data.map((item) => {
+              const isReadonly = item.id.startsWith('local-');
+              return renderItem(item, handleEdit, handleDelete, isReadonly);
+            })
+          ) : (
+            <p className="text-center text-muted-foreground py-8">No items found. Click "Add New" to get started.</p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

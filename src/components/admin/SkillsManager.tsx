@@ -11,6 +11,7 @@ import { TechIcon } from '../icons/TechIcons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { Skill } from '@/lib/types';
+import { Skeleton } from '../ui/skeleton';
 
 
 const SkillSchema = z.object({
@@ -29,17 +30,6 @@ const FormFields = (form: any) => (
   </>
 );
 
-const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent>
-        <p>This is fallback data. Add it to Firestore to edit.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
-
 const RenderItem = (item: Skill, onEdit: (item: Skill) => void, onDelete: (id: string) => void, isReadonly: boolean) => (
   <div key={item.id} className={cn("flex items-center justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/30")}>
     <div className="flex items-center gap-4">
@@ -47,18 +37,46 @@ const RenderItem = (item: Skill, onEdit: (item: Skill) => void, onDelete: (id: s
       <h4 className="font-semibold">{item.name}</h4>
     </div>
     <div className="flex gap-2">
-       <ReadonlyTooltip>
-          <div className={cn(isReadonly && "cursor-not-allowed")}>
-            <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
-          </div>
-        </ReadonlyTooltip>
-        <ReadonlyTooltip>
-          <div className={cn(isReadonly && "cursor-not-allowed")}>
-            <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
-          </div>
-        </ReadonlyTooltip>
+       <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={cn(isReadonly && "cursor-not-allowed")}>
+                <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Edit Item</p>}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={cn(isReadonly && "cursor-not-allowed")}>
+                <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Delete Item</p>}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
     </div>
   </div>
+);
+
+const ItemSkeleton = () => (
+    <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+        <div className="flex items-center gap-4">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-5 w-24" />
+        </div>
+        <div className="flex gap-2">
+            <Skeleton className="h-10 w-10" />
+            <Skeleton className="h-10 w-10" />
+        </div>
+    </div>
 );
 
 export function SkillsManager() {
@@ -70,6 +88,7 @@ export function SkillsManager() {
       renderItem={RenderItem}
       title="Skills"
       description="Manage your tech stack and skills."
+      itemSkeleton={<ItemSkeleton />}
     />
   );
 }

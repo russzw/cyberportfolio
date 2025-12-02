@@ -13,6 +13,7 @@ import { CrudManager } from './CrudManager';
 import type { Project } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '../ui/skeleton';
 
 const ProjectSchema = z.object({
   name: z.string().min(1, 'Name is required.').default(''),
@@ -61,17 +62,6 @@ const FormFields = (form: any) => {
   );
 };
 
-const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent>
-        <p>This is fallback data. Add it to Firestore to edit.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
-
 const RenderItem = (item: Project, onEdit: (item: Project) => void, onDelete: (id: string) => void, isReadonly: boolean) => (
   <div key={item.id} className={cn("flex items-center justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/30")}>
     <div className="flex items-center gap-4">
@@ -84,19 +74,54 @@ const RenderItem = (item: Project, onEdit: (item: Project) => void, onDelete: (i
         </div>
     </div>
     <div className="flex gap-2 shrink-0">
-       <ReadonlyTooltip>
-          <div className={cn(isReadonly && "cursor-not-allowed")}>
-            <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
-          </div>
-        </ReadonlyTooltip>
-        <ReadonlyTooltip>
-          <div className={cn(isReadonly && "cursor-not-allowed")}>
-            <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
-          </div>
-        </ReadonlyTooltip>
+       <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={cn(isReadonly && "cursor-not-allowed")}>
+                <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Edit Item</p>}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={cn(isReadonly && "cursor-not-allowed")}>
+                <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Delete Item</p>}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
     </div>
   </div>
 );
+
+const ItemSkeleton = () => (
+    <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+        <div className="flex items-center gap-4">
+            <Skeleton className="h-16 w-16 rounded-md" />
+            <div className="space-y-2">
+                <Skeleton className="h-5 w-40" />
+                <div className="flex gap-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-20" />
+                </div>
+            </div>
+        </div>
+        <div className="flex gap-2 shrink-0">
+            <Skeleton className="h-10 w-10" />
+            <Skeleton className="h-10 w-10" />
+        </div>
+    </div>
+);
+
 
 export function ProjectManager() {
   return (
@@ -107,6 +132,7 @@ export function ProjectManager() {
       renderItem={RenderItem}
       title="Projects"
       description="Manage your portfolio projects."
+      itemSkeleton={<ItemSkeleton />}
     />
   );
 }

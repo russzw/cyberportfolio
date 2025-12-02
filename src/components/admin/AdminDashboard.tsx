@@ -5,7 +5,8 @@ import type { User } from 'firebase/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { useAuth } from '@/firebase';
 import { Button } from '../ui/button';
-import { Menu } from 'lucide-react';
+import { Home, Menu } from 'lucide-react';
+import Link from 'next/link';
 
 interface AdminDashboardProps {
   user: User;
@@ -48,7 +49,7 @@ export function AdminDashboard({ user, children, onMenuClick }: AdminDashboardPr
           </Button>
         </div>
       </header>
-      <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
+      <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 animate-in fade-in-50 duration-500">
         {children}
       </main>
     </div>
@@ -79,7 +80,14 @@ const AccessDeniedCard = ({ user, handleLogout }: { user: User; handleLogout: ()
             </ol>
         </div>
         
-        <Button onClick={handleLogout} variant="outline" className="mt-4">Logout</Button>
+        <div className="flex justify-center gap-4 mt-4">
+          <Button onClick={handleLogout} variant="outline">Logout</Button>
+          <Button asChild>
+            <Link href="/">
+              <Home className="mr-2 h-4 w-4" /> Go to Home
+            </Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   </div>

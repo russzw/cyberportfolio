@@ -10,8 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Home, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -34,6 +35,7 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    if (!auth) return;
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
@@ -54,7 +56,7 @@ export function LoginForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm relative">
         <CardHeader>
           <CardTitle>Admin Login</CardTitle>
           <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
@@ -95,6 +97,14 @@ export function LoginForm() {
             </form>
           </Form>
         </CardContent>
+        <div className="p-6 pt-0 text-center">
+            <Button variant="link" asChild>
+                <Link href="/">
+                    <Home className="mr-2 h-4 w-4" />
+                    Go back to Home
+                </Link>
+            </Button>
+        </div>
       </Card>
     </div>
   );
