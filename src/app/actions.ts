@@ -2,9 +2,8 @@
 "use server";
 
 import { z } from "zod";
-import { collection, serverTimestamp } from "firebase/firestore";
-import { initializeFirebase } from "@/firebase";
-import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { FieldValue } from "firebase-admin/firestore";
+import { adminDb } from "@/lib/firebase-admin";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -39,20 +38,24 @@ export async function submitContactForm(
       message: "Please correct the errors below.",
     };
   }
-  
-  const { firestore } = initializeFirebase();
-  const submissionsCollection = collection(firestore, "contact_form_submissions");
-  
-  // The promise is intentionally not awaited to avoid blocking.
-  // Error handling is managed within addDocumentNonBlocking via the global error emitter.
-  addDocumentNonBlocking(submissionsCollection, {
-    ...validatedFields.data,
-    createdAt: serverTimestamp(),
-  });
 
-  return {
-    success: true,
-    message: "Thank you for your message! I'll get back to you soon.",
-    errors: null,
-  };
+  try {
+    await adminDb.collection("contact_form_submissions").add({
+      ...validatedFields.data,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return {
+      success: true,
+      message: "Thank you for your message! I'll get back to you soon.",
+      errors: null,
+    };
+  } catch (error) {
+    console.error("Error submitting contact form:", error);
+    return {
+      success: false,
+      message: "There was an issue sending your message. Please try again later.",
+      errors: null,
+    };
+  }
 }
