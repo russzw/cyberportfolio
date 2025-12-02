@@ -29,21 +29,21 @@ function SubmitButton() {
 }
 
 export function Contact() {
-  const formRef = React.useRef<HTMLFormElement>(null);
-  const [isSuccess, setIsSuccess] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [message, setMessage] = React.useState("");
+
   const initialState: ContactFormState = { success: false, message: "", errors: null };
 
   const [state, formAction] = useActionState(async (prevState, formData) => {
     const result = await submitContactForm(prevState, formData);
     if (result.success) {
-      setIsSuccess(true);
-      formRef.current?.reset();
-    } else {
-      setIsSuccess(false);
+      setName("");
+      setEmail("");
+      setMessage("");
     }
     return result;
   }, initialState);
-
 
   return (
     <Section id="contact" className="bg-secondary/20">
@@ -56,7 +56,7 @@ export function Contact() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isSuccess ? (
+          {state.success ? (
              <div className="flex flex-col items-center justify-center text-center p-8 rounded-lg bg-accent/20">
               <div className="p-3 rounded-full bg-accent text-accent-foreground mb-4">
                 <Send className="h-6 w-6"/>
@@ -65,23 +65,46 @@ export function Contact() {
               <p className="text-muted-foreground">{state.message}</p>
             </div>
           ) : (
-            <form ref={formRef} action={formAction} className="space-y-4">
+            <form action={formAction} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" placeholder="Your Name" required />
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Your Name"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
                 {state.errors?.name && <p className="text-sm text-destructive">{state.errors.name[0]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" placeholder="your@email.com" required />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
                 {state.errors?.email && <p className="text-sm text-destructive">{state.errors.email[0]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="message">Message</Label>
-                <Textarea id="message" name="message" placeholder="Your message..." required className="min-h-[120px]" />
+                <Textarea
+                  id="message"
+                  name="message"
+                  placeholder="Your message..."
+                  required
+                  className="min-h-[120px]"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
                 {state.errors?.message && <p className="text-sm text-destructive">{state.errors.message[0]}</p>}
               </div>
-              {state.message && !state.success && <p className="text-sm text-destructive">{state.message}</p>}
+              {state.message && !state.success && !state.errors && <p className="text-sm text-destructive">{state.message}</p>}
               <SubmitButton />
             </form>
           )}
