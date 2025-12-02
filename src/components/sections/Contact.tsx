@@ -36,7 +36,7 @@ export function Contact() {
     if (state.success) {
       formRef.current?.reset();
     }
-  }, [state.success]);
+  }, [state]);
 
   return (
     <Section id="contact" className="bg-secondary/20">
