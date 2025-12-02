@@ -2,7 +2,7 @@
 
 import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { SplitText } from "gsap-trial/SplitText";
+import { SplitText } from "gsap/SplitText";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,33 +31,35 @@ export function Hero({ data }: { data: HeroData }) {
   const buttonRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (heroRef.current) {
-      const nameChars = new SplitText(nameRef.current, { type: "chars" });
-      const subtitleChars = new SplitText(subtitleRef.current, { type: "chars" });
-      
-      const tl = gsap.timeline();
-      
-      tl.from(nameChars.chars, {
-        opacity: 0,
-        y: 20,
-        stagger: 0.05,
-        ease: "power3.out",
-        duration: 0.8
-      })
-      .from(subtitleChars.chars, {
-        opacity: 0,
-        y: 15,
-        stagger: 0.02,
-        ease: "power3.out",
-        duration: 0.5
-      }, "-=0.6")
-      .fromTo(
-        buttonRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, ease: "power3.out", duration: 0.8 },
-        "-=0.4"
-      );
-    }
+    let ctx = gsap.context(() => {
+        const nameChars = new SplitText(nameRef.current, { type: "chars" });
+        const subtitleChars = new SplitText(subtitleRef.current, { type: "chars" });
+        
+        const tl = gsap.timeline();
+        
+        tl.from(nameChars.chars, {
+          opacity: 0,
+          y: 20,
+          stagger: 0.05,
+          ease: "power3.out",
+          duration: 0.8
+        })
+        .from(subtitleChars.chars, {
+          opacity: 0,
+          y: 15,
+          stagger: 0.02,
+          ease: "power3.out",
+          duration: 0.5
+        }, "-=0.6")
+        .fromTo(
+          buttonRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, ease: "power3.out", duration: 0.8 },
+          "-=0.4"
+        );
+    }, heroRef);
+    
+    return () => ctx.revert();
   }, [data]);
 
   return (
@@ -76,7 +78,7 @@ export function Hero({ data }: { data: HeroData }) {
         >
           {data.subtitle}
         </p>
-        <div ref={buttonRef} className="cta-button mt-8 opacity-0">
+        <div ref={buttonRef} className="cta-button mt-8">
           <Button asChild size="lg" className="group">
             <a href="#projects">
               View My Work
