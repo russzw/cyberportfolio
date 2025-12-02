@@ -1,0 +1,94 @@
+{
+  "__collections__": {
+    "portfolio_content": {
+      "main": {
+        "hero": {
+          "name": "Russell Mutamba",
+          "subtitle": "Full-Stack Developer • Cloud & AI Engineer"
+        },
+        "about": {
+          "paragraph": "I'm a passionate developer with extensive experience building robust and scalable solutions across the full stack. My expertise lies in leveraging modern technologies like TypeScript, React, and Next.js to create seamless user experiences. I'm also deeply involved in cloud architecture with AWS, IoT integrations, and applying AI to solve real-world problems. From designing intuitive UIs to deploying containerized applications with Docker, I thrive on tackling complex challenges and turning ideas into reality."
+        },
+        "skills": [
+          { "name": "TypeScript", "icon": "typescript" },
+          { "name": "React / Next.js", "icon": "react" },
+          { "name": "Three.js / WebGL", "icon": "threejs" },
+          { "name": "AWS Cloud", "icon": "aws" },
+          { "name": "Docker", "icon": "docker" },
+          { "name": "Node.js", "icon": "nodejs" },
+          { "name": "PostgreSQL", "icon": "postgresql" },
+          { "name": "Prisma", "icon": "prisma" },
+          { "name": "UI/UX Design", "icon": "designtool" }
+        ],
+        "experience": [
+          {
+            "role": "Smart Waste Management System",
+            "company": "University Project",
+            "duration": "2023",
+            "description": "Led the development of a full-stack IoT platform using Next.js, React, and Node.js. The system utilized sensors to monitor waste levels in real-time, optimizing collection routes and improving efficiency. I was responsible for both the frontend dashboard and the backend data processing pipeline."
+          },
+          {
+            "role": "Freelance UI/UX & App Developer",
+            "company": "Self-Employed",
+            "duration": "2022 - Present",
+            "description": "Designed and developed custom desktop applications and user interfaces for various clients. My work focused on creating intuitive and visually appealing software, enhancing user engagement and productivity."
+          },
+          {
+            "role": "Outreach Client Work",
+            "company": "Stake Casino (via Freelance)",
+            "duration": "2022",
+            "description": "Contributed to a client project for Stake Casino, focusing on outreach and integration tasks. This involved working with APIs and ensuring seamless communication between different parts of their marketing platform."
+          },
+          {
+            "role": "Cloud Architecture & Deployment",
+            "company": "Various Projects",
+            "duration": "Ongoing",
+            "description": "Designed and managed scalable cloud infrastructure on AWS for multiple projects. My responsibilities included setting up CI/CD pipelines, containerizing applications with Docker, and ensuring high availability and performance."
+          }
+        ],
+        "projects": [
+          {
+            "name": "Project CyberGrid",
+            "description": "An interactive data visualization platform built with Next.js and Three.js.",
+            "tech": ["Next.js", "Three.js", "TypeScript"],
+            "imageUrl": "https://picsum.photos/seed/1/600/400",
+            "imageHint": "abstract data",
+            "liveUrl": "#",
+            "githubUrl": "#"
+          },
+          {
+            "name": "IoT Smart Home Hub",
+            "description": "A central dashboard to control and monitor IoT devices in a smart home environment.",
+            "tech": ["React", "Node.js", "AWS IoT"],
+            "imageUrl": "https://picsum.photos/seed/2/600/400",
+            "imageHint": "smart home",
+            "liveUrl": "#",
+            "githubUrl": "#"
+          },
+          {
+            "name": "AI Content Summarizer",
+            "description": "A web app that uses AI to summarize long articles and documents.",
+            "tech": ["Next.js", "GenAI", "Firebase"],
+            "imageUrl": "https://picsum.photos/seed/3/600/400",
+            "imageHint": "artificial intelligence",
+            "liveUrl": "#",
+            "githubUrl": "#"
+          }
+        ],
+        "testimonials": [
+          {
+            "author": "Jane Doe",
+            "role": "CEO, Tech Solutions Inc.",
+            "text": "Russell's expertise was instrumental in the success of our project. His ability to translate complex requirements into a functional and beautiful application is second to none. A true professional."
+          },
+          {
+            "author": "John Smith",
+            "role": "Lead Engineer, Innovate Co.",
+            "text": "Working with Russell was a fantastic experience. He is a very skilled developer who is always willing to go the extra mile. His problem-solving skills are top-notch. I would highly recommend him."
+          }
+        ],
+        "__collections__": {}
+      }
+    }
+  }
+}
