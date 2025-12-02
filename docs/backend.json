@@ -1,0 +1,332 @@
+{
+  "entities": {
+    "Project": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Project",
+      "type": "object",
+      "description": "Represents a project showcased on the portfolio website.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Project entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the project."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description of the project."
+        },
+        "techUsed": {
+          "type": "array",
+          "description": "List of technologies used in the project.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "description": "URL of the project thumbnail image."
+        },
+        "liveDemoUrl": {
+          "type": "string",
+          "description": "URL of the live demo of the project."
+        },
+        "githubUrl": {
+          "type": "string",
+          "description": "URL of the project's GitHub repository."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "techUsed",
+        "thumbnailUrl",
+        "liveDemoUrl",
+        "githubUrl"
+      ]
+    },
+    "Testimonial": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Testimonial",
+      "type": "object",
+      "description": "Represents a testimonial from a client or colleague.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Testimonial entity."
+        },
+        "author": {
+          "type": "string",
+          "description": "Name of the testimonial author."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text content of the testimonial."
+        },
+        "authorTitle": {
+          "type": "string",
+          "description": "The title of the author, typically their job title."
+        }
+      },
+      "required": [
+        "id",
+        "author",
+        "text"
+      ]
+    },
+    "WorkExperience": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WorkExperience",
+      "type": "object",
+      "description": "Represents a work experience entry in the timeline.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WorkExperience entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the work experience (e.g., job title)."
+        },
+        "company": {
+          "type": "string",
+          "description": "Name of the company or organization."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Start date of the work experience.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "End date of the work experience (or null if current).",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the responsibilities and achievements."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "company",
+        "startDate",
+        "description"
+      ]
+    },
+    "ContactFormSubmission": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ContactFormSubmission",
+      "type": "object",
+      "description": "Represents a submission from the contact form.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ContactFormSubmission entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the person submitting the form."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the person submitting the form.",
+          "format": "email"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message content from the form submission."
+        },
+        "submissionDate": {
+          "type": "string",
+          "description": "Date and time when the form was submitted.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "message",
+        "submissionDate"
+      ]
+    },
+    "Skill": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Skill",
+      "type": "object",
+      "description": "Represents a skill or technology used.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Skill entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the skill or technology (e.g., TypeScript, React)."
+        },
+        "iconUrl": {
+          "type": "string",
+          "description": "URL for the associated icon."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "iconUrl"
+      ]
+    },
+    "UserConfig": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserConfig",
+      "type": "object",
+      "description": "Stores configuration settings managed by the user such as Hero Text and About sections",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user config."
+        },
+        "heroText": {
+          "type": "string",
+          "description": "Hero text content for the main landing section."
+        },
+        "aboutSection": {
+          "type": "string",
+          "description": "Content for the About Me section."
+        }
+      },
+      "required": [
+        "id",
+        "heroText",
+        "aboutSection"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/projects/{projectId}",
+        "definition": {
+          "entityName": "Project",
+          "schema": {
+            "$ref": "#/backend/entities/Project"
+          },
+          "description": "Stores project data for the portfolio.  Anyone can read, only admins can write.",
+          "params": [
+            {
+              "name": "projectId",
+              "description": "The unique identifier for the project."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/testimonials/{testimonialId}",
+        "definition": {
+          "entityName": "Testimonial",
+          "schema": {
+            "$ref": "#/backend/entities/Testimonial"
+          },
+          "description": "Stores testimonials for the portfolio.  Anyone can read, only admins can write.",
+          "params": [
+            {
+              "name": "testimonialId",
+              "description": "The unique identifier for the testimonial."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/work_experience/{workExperienceId}",
+        "definition": {
+          "entityName": "WorkExperience",
+          "schema": {
+            "$ref": "#/backend/entities/WorkExperience"
+          },
+          "description": "Stores work experience entries for the timeline.  Anyone can read, only admins can write.",
+          "params": [
+            {
+              "name": "workExperienceId",
+              "description": "The unique identifier for the work experience entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/contact_form_submissions/{contactFormSubmissionId}",
+        "definition": {
+          "entityName": "ContactFormSubmission",
+          "schema": {
+            "$ref": "#/backend/entities/ContactFormSubmission"
+          },
+          "description": "Stores contact form submissions. Anyone can read, only admins can write. Submission date will be managed by Firestore server timestamp.",
+          "params": [
+            {
+              "name": "contactFormSubmissionId",
+              "description": "The unique identifier for the contact form submission."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/skills/{skillId}",
+        "definition": {
+          "entityName": "Skill",
+          "schema": {
+            "$ref": "#/backend/entities/Skill"
+          },
+          "description": "Stores skills data.  Anyone can read, only admins can write.",
+          "params": [
+            {
+              "name": "skillId",
+              "description": "The unique identifier for the skill."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/user_config/{userConfigId}",
+        "definition": {
+          "entityName": "UserConfig",
+          "schema": {
+            "$ref": "#/backend/entities/UserConfig"
+          },
+          "description": "Stores user configuration settings like hero text and about section. Anyone can read, only admins can write.",
+          "params": [
+            {
+              "name": "userConfigId",
+              "description": "The unique identifier for the user configuration."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "role_admin",
+          "schema": {
+            "$ref": "#/backend/entities/UserConfig"
+          },
+          "description": "Stores admin user id, anyone can read, only admins can write. used for security rules for admin access",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user who is an admin"
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to manage content for a portfolio website, prioritizing ease of management, security, and scalability. Since all content needs to be globally editable by the website owner, each content collection is placed at the root level. This simplifies querying and avoids unnecessary path complexity. There is no user specific content. Security rules will be implemented to restrict write access to authenticated administrators only.  All read requests are public and unauthenticated.\n\n**Authorization Independence:**  Since no hierarchical authorization is required, all collections are independent. Authorization rules are based on checking if the user is authenticated as an administrator (existence check in a dedicated roles collection). Denormalization is not needed as all data is public read and admin write. No `get()` calls are required in the rules.\n\n**Structural Segregation:** Each content type (projects, testimonials, work experience, etc.) is stored in its own root-level collection. This is done to maintain a homogeneous security posture as per the architectural guidelines. Each collection holds one type of object.\n\n**QAPs (Rules Are Not Filters):** The data structure naturally supports secure `list` operations. Since each collection contains only one type of entity and access is globally managed, listing is straightforward and doesn't require filtering based on user roles or permissions. All read requests are permitted.\n\n**Invariants:** Timestamps (where relevant, like in ContactFormSubmission) will be managed by Firestore server timestamps to ensure integrity."
+  }
+}

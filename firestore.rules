@@ -1,18 +1,134 @@
+/**
+ * Core Philosophy: This ruleset implements a Public-Read, Admin-Write security model.
+ * All content collections are publicly readable by any user, including unauthenticated
+ * visitors. However, all write operations (creating, updating, deleting data) are
+ * strictly limited to authenticated users who are designated as administrators.
+ *
+ * Data Structure: All data collections (projects, testimonials, skills, etc.) are
+ * stored at the root of the database. There are no user-specific subcollections.
+ * Authorization is managed globally through a dedicated `/roles_admin` collection,
+ * which contains documents whose IDs are the UIDs of administrative users.
+ *
+ * Key Security Decisions:
+ * - Admin Role Management: A user's admin status is determined by the existence of a
+ *   document in `/roles_admin/{userId}`. This provides a single, centralized place
+ *   to manage permissions.
+ * - Public Data Default: Most collections are configured for public, read-only access
+ *   to support the portfolio website's function of displaying content to all visitors.
+ * - Protection of Sensitive Data: Contrary to a general public-read rule, the
+ *   `/contact_form_submissions` collection is locked down. Anyone can create (submit)
+ *   a message, but only administrators can read or manage these submissions to protect
+ *   the personally identifiable information (PII) they contain. Similarly, the list
+ *   of admins in `/roles_admin` is not public to prevent user enumeration.
+ * - Write Operations: All write operations are universally protected by an `isAdmin()`
+ *   check, ensuring only authorized personnel can modify site content.
+ *
+ * Denormalization for Authorization: This ruleset avoids denormalization by design.
+ * Since most data is public and writes are controlled by a global role, there is no need
+ * to copy ownership or role data onto individual documents. Authorization is handled
+ * efficiently with a single `exists()` check against the `/roles_admin` collection.
+ */
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Portfolio content is publically readable, but write access is restricted.
-    // In a real app, you'd restrict this to authenticated admins.
-    match /portfolio_content/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Example: only authenticated users
+
+    /**
+     * Checks if the requesting user is an administrator.
+     * Admin status is determined by the existence of a document in the
+     * /roles_admin collection where the document ID matches the user's UID.
+     */
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
-    // Anyone can submit the contact form.
-    match /contact_submissions/{docId} {
-      allow read: if request.auth != null; // Only admins should read submissions
+    /**
+     * @description Publicly readable project data for the portfolio.
+     * @path /projects/{projectId}
+     * @allow (get) Any user, signed in or not, can read a specific project.
+     * @deny (create) A non-administrative user cannot create a new project.
+     * @principle Public read access for content, with admin-only write controls.
+     */
+    match /projects/{projectId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Publicly readable testimonials for the portfolio.
+     * @path /testimonials/{testimonialId}
+     * @allow (list) Any user, signed in or not, can list all testimonials.
+     * @deny (update) A non-administrative user cannot update an existing testimonial.
+     * @principle Public read access for content, with admin-only write controls.
+     */
+    match /testimonials/{testimonialId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Publicly readable work experience entries for the timeline.
+     * @path /work_experience/{workExperienceId}
+     * @allow (get) Any user can read a specific work experience entry.
+     * @deny (delete) A non-administrative user cannot delete a work experience entry.
+     * @principle Public read access for content, with admin-only write controls.
+     */
+    match /work_experience/{workExperienceId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Stores contact form submissions containing private user info.
+     * @path /contact_form_submissions/{contactFormSubmissionId}
+     * @allow (create) Any user, signed in or not, can submit the contact form.
+     * @deny (get) A non-administrative user cannot read a specific submission to protect PII.
+     * @principle Protects sensitive PII by allowing public creation but restricting all other access to admins.
+     */
+    match /contact_form_submissions/{contactFormSubmissionId} {
       allow create: if true;
+      allow get, list: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Publicly readable skills data.
+     * @path /skills/{skillId}
+     * @allow (list) Any user can list all skills.
+     * @deny (create) A non-administrative user cannot add a new skill.
+     * @principle Public read access for content, with admin-only write controls.
+     */
+    match /skills/{skillId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Publicly readable site configuration like hero text.
+     * @path /user_config/{userConfigId}
+     * @allow (get) Any user can read the site configuration.
+     * @deny (update) A non-administrative user cannot modify the site configuration.
+     * @principle Public read access for content, with admin-only write controls.
+     */
+    match /user_config/{userConfigId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages the list of administrators. Access is restricted to other admins.
+     * @path /roles_admin/{userId}
+     * @allow (create) An existing admin can add another user as an admin.
+     * @deny (list) A non-administrative user cannot list all admins.
+     * @principle Secures the admin role management system itself.
+     */
+    match /roles_admin/{userId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
   }
 }
