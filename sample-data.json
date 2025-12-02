@@ -17,7 +17,6 @@
           { "name": "Docker", "icon": "docker" },
           { "name": "Node.js", "icon": "nodejs" },
           { "name": "PostgreSQL", "icon": "postgresql" },
-          { "name": "Prisma", "icon": "prisma" },
           { "name": "UI/UX Design", "icon": "designtool" }
         ],
         "experience": [

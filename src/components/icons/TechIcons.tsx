@@ -47,11 +47,6 @@ const iconMap: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.91h-2V12c0-1.1.9-2 2-2h2v2h-2v4.91zm4-6.91v4h2v2h-2v2h-2v-2h-2v-2h2v-2c0-1.1.9-2 2-2h2v2h-2z"/>
     </svg>
   ),
-  prisma: (props) => (
-    <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2L2 7l10 5 10-5L12 2zm-1.03 17.5l-8.5-4.74v-5.52l8.5 4.73v5.53zM13.03 19.5v-5.53l8.5-4.73v5.52l-8.5 4.74zM3.49 10.99l8.51-4.74 8.51 4.74-8.51 4.74-8.51-4.74z"/>
-    </svg>
-  ),
   designtool: (props) => (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 20h.01"/><path d="M10 12v.01"/><path d="M14 12v.01"/><path d="M12 12v.01"/><path d="M12 8v.01"/><path d="M3 3h18v18H3z"/>
