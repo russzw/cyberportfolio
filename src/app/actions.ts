@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { initializeFirebase } from "@/firebase";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -39,7 +39,8 @@ export async function submitContactForm(
   }
   
   try {
-    await addDoc(collection(db, "contact_submissions"), {
+    const { firestore } = initializeFirebase();
+    await addDoc(collection(firestore, "contact_form_submissions"), {
       ...validatedFields.data,
       createdAt: serverTimestamp(),
     });
