@@ -21,49 +21,54 @@ const CyberGridBackground = () => (
   </div>
 );
 
-const AnimatedText = ({ text, className, delay = 0 }: { text: string; className?: string, delay?: number }) => {
-  return (
-    <div className={cn("overflow-hidden", className)}>
-      <div className="animate-text-reveal" style={{ animationDelay: `${delay}s` }}>
-        {text}
-      </div>
-    </div>
-  );
-};
-
 export function Hero({ data }: { data: HeroData }) {
   const heroRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".animate-text-reveal",
-        { yPercent: 100 },
-        { yPercent: 0, duration: 1, ease: "power3.out", stagger: 0.2 }
-      );
-      gsap.fromTo(
-        ".cta-button",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 1 }
-      );
-    }, heroRef);
-    return () => ctx.revert();
-  }, []);
+    if (heroRef.current) {
+      const tl = gsap.timeline({
+        defaults: { duration: 0.8, ease: "power3.out" },
+      });
+      tl.fromTo(
+        nameRef.current,
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0 }
+      )
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0 },
+          "-=0.6"
+        )
+        .fromTo(
+          buttonRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0 },
+          "-=0.6"
+        );
+    }
+  }, [data]); // Rerun animation when data changes
 
   return (
-    <section ref={heroRef} id="home" className="relative flex h-[calc(100vh-4rem)] min-h-[500px] w-full items-center justify-center">
+    <section ref={heroRef} id="home" className="relative flex h-[80vh] min-h-[450px] w-full items-center justify-center">
       <CyberGridBackground />
       <div className="relative z-20 text-center">
-        <AnimatedText
-          text={data.name}
-          className="text-5xl font-bold tracking-tighter md:text-7xl lg:text-8xl text-glow"
-        />
-        <AnimatedText
-          text={data.subtitle}
-          className="mt-4 text-lg text-muted-foreground md:text-xl"
-          delay={0.2}
-        />
-        <div className="cta-button mt-8">
+        <h1
+          ref={nameRef}
+          className="text-5xl font-bold tracking-tighter md:text-7xl lg:text-8xl text-glow opacity-0"
+        >
+          {data.name}
+        </h1>
+        <p
+          ref={subtitleRef}
+          className="mt-4 text-lg text-muted-foreground md:text-xl opacity-0"
+        >
+          {data.subtitle}
+        </p>
+        <div ref={buttonRef} className="cta-button mt-8 opacity-0">
           <Button asChild size="lg" className="group">
             <a href="#projects">
               View My Work
