@@ -194,6 +194,10 @@
           "type": "string",
           "description": "Hero text content for the main landing section."
         },
+        "heroSubtitle": {
+          "type": "string",
+          "description": "Hero subtitle text content for the main landing section."
+        },
         "aboutSection": {
           "type": "string",
           "description": "Content for the About Me section."
@@ -202,6 +206,7 @@
       "required": [
         "id",
         "heroText",
+        "heroSubtitle",
         "aboutSection"
       ]
     }

@@ -27,7 +27,7 @@ export async function getPortfolioData(db: Firestore): Promise<PortfolioData | n
 
     const hero: HeroData = {
         name: userConfigData?.heroText || "Your Name",
-        subtitle: userConfigData?.aboutSection ? "" : "Your subtitle" 
+        subtitle: userConfigData?.heroSubtitle || "Your subtitle" 
     };
 
     const about: AboutData = {
