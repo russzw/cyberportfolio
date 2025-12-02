@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { LoginForm } from '@/components/admin/LoginForm';
 import { AdminDashboard, AccessDeniedCard } from '@/components/admin/AdminDashboard';
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 
@@ -60,6 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent side="left" className="p-0 w-[280px]">
+          <SheetTitle className="sr-only">Admin Menu</SheetTitle>
           <AdminSidebar onLinkClick={() => setIsSheetOpen(false)} />
         </SheetContent>
       </Sheet>
