@@ -37,6 +37,9 @@ const FormFields = (form: any) => (
     <FormField control={form.control} name="imageUrl" render={({ field }) => (
       <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
     )} />
+     <FormField control={form.control} name="imageHint" render={({ field }) => (
+      <FormItem><FormLabel>Image Hint (for AI)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+    )} />
     <FormField control={form.control} name="liveUrl" render={({ field }) => (
       <FormItem><FormLabel>Live Demo URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
     )} />

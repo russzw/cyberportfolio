@@ -7,7 +7,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -50,6 +50,7 @@ export function CrudManager<T extends { id: string }>({
       if (editingItem) {
         form.reset(editingItem);
       } else {
+        // @ts-ignore
         form.reset(Schema.default({})._def.defaultValue);
       }
     }
@@ -75,14 +76,12 @@ export function CrudManager<T extends { id: string }>({
     setIsSubmitting(true);
     if (editingItem) {
       updateDocumentNonBlocking(doc(firestore, collectionName, editingItem.id), {
-        ...values,
-        updatedAt: serverTimestamp(),
+        ...values
       });
       toast({ title: 'Success', description: 'Item updated successfully.' });
     } else {
       addDocumentNonBlocking(collection(firestore, collectionName), {
         ...values,
-        createdAt: serverTimestamp(),
       });
       toast({ title: 'Success', description: 'Item added successfully.' });
     }
