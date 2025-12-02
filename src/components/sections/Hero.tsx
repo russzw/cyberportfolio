@@ -2,10 +2,13 @@
 
 import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { SplitText } from "gsap-trial/SplitText";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { HeroData } from "@/lib/types";
+
+gsap.registerPlugin(SplitText);
 
 const CyberGridBackground = () => (
   <div className="absolute inset-0 z-0 overflow-hidden bg-background">
@@ -29,28 +32,33 @@ export function Hero({ data }: { data: HeroData }) {
 
   useLayoutEffect(() => {
     if (heroRef.current) {
-      const tl = gsap.timeline({
-        defaults: { duration: 0.8, ease: "power3.out" },
-      });
-      tl.fromTo(
-        nameRef.current,
-        { opacity: 0, y: 50 },
-        { opacity: 1, y: 0 }
-      )
-        .fromTo(
-          subtitleRef.current,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0 },
-          "-=0.6"
-        )
-        .fromTo(
-          buttonRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0 },
-          "-=0.6"
-        );
+      const nameChars = new SplitText(nameRef.current, { type: "chars" });
+      const subtitleChars = new SplitText(subtitleRef.current, { type: "chars" });
+      
+      const tl = gsap.timeline();
+      
+      tl.from(nameChars.chars, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.05,
+        ease: "power3.out",
+        duration: 0.8
+      })
+      .from(subtitleChars.chars, {
+        opacity: 0,
+        y: 15,
+        stagger: 0.02,
+        ease: "power3.out",
+        duration: 0.5
+      }, "-=0.6")
+      .fromTo(
+        buttonRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, ease: "power3.out", duration: 0.8 },
+        "-=0.4"
+      );
     }
-  }, [data]); // Rerun animation when data changes
+  }, [data]);
 
   return (
     <section ref={heroRef} id="home" className="relative flex h-[70vh] min-h-[450px] w-full items-center justify-center">
@@ -58,13 +66,13 @@ export function Hero({ data }: { data: HeroData }) {
       <div className="relative z-20 text-center">
         <h1
           ref={nameRef}
-          className="text-5xl font-bold tracking-tighter md:text-7xl lg:text-8xl text-glow opacity-0"
+          className="text-5xl font-bold tracking-tighter md:text-7xl lg:text-8xl text-glow"
         >
           {data.name}
         </h1>
         <p
           ref={subtitleRef}
-          className="mt-4 text-lg text-muted-foreground md:text-xl opacity-0"
+          className="mt-4 text-lg text-muted-foreground md:text-xl"
         >
           {data.subtitle}
         </p>
