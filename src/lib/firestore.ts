@@ -1,3 +1,4 @@
+
 import { collection, getDocs, doc, getDoc, type Firestore } from "firebase/firestore";
 import type { PortfolioData, HeroData, AboutData, Skill, ExperienceItem, Project, Testimonial } from "./types";
 
@@ -18,7 +19,7 @@ export async function getPortfolioData(db: Firestore): Promise<PortfolioData | n
     if (!userConfigDoc.exists()) {
       console.log("No user_config document in Firestore!");
       // Fallback to sample-data.json if firestore is empty
-      const sampleData = await import("../../../sample-data.json");
+      const sampleData = await import("../../sample-data.json");
       return sampleData.__collections__.portfolio_content.main as PortfolioData;
     }
 
@@ -52,7 +53,7 @@ export async function getPortfolioData(db: Firestore): Promise<PortfolioData | n
   } catch (error) {
     console.error("Error getting portfolio data:", error);
      try {
-      const sampleData = await import("../../../sample-data.json");
+      const sampleData = await import("../../sample-data.json");
       console.log("Falling back to local sample data.");
       return sampleData.__collections__.portfolio_content.main as PortfolioData;
     } catch (sampleError) {
