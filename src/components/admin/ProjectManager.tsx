@@ -23,41 +23,56 @@ const ProjectSchema = z.object({
 
 type Project = z.infer<typeof ProjectSchema> & { id: string };
 
-const FormFields = (form: any) => (
-  <>
-    <FormField control={form.control} name="name" render={({ field }) => (
-      <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-    )} />
-    <FormField control={form.control} name="description" render={({ field }) => (
-      <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-    )} />
-    <FormField control={form.control} name="tech" render={({ field }) => (
-      <FormItem>
-        <FormLabel>Tech Stack (comma-separated)</FormLabel>
-        <FormControl>
-          <Input 
-            {...field} 
-            value={Array.isArray(field.value) ? field.value.join(', ') : ''}
-            onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    )} />
-    <FormField control={form.control} name="imageUrl" render={({ field }) => (
-      <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-    )} />
-     <FormField control={form.control} name="imageHint" render={({ field }) => (
-      <FormItem><FormLabel>Image Hint (for AI)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-    )} />
-    <FormField control={form.control} name="liveUrl" render={({ field }) => (
-      <FormItem><FormLabel>Live Demo URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-    )} />
-    <FormField control={form.control} name="githubUrl" render={({ field }) => (
-      <FormItem><FormLabel>GitHub URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-    )} />
-  </>
-);
+const FormFields = (form: any) => {
+  return (
+    <>
+      <FormField control={form.control} name="name" render={({ field }) => (
+        <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="description" render={({ field }) => (
+        <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField
+        control={form.control}
+        name="tech"
+        render={({ field }) => {
+          // The field value is an array, we need to join it for the input
+          const stringValue = Array.isArray(field.value) ? field.value.join(', ') : '';
+          
+          return (
+            <FormItem>
+              <FormLabel>Tech Stack (comma-separated)</FormLabel>
+              <FormControl>
+                <Input
+                  value={stringValue}
+                  onChange={e => {
+                    const stringFromInput = e.target.value;
+                    const arrayValue = stringFromInput.split(',').map(s => s.trim()).filter(Boolean);
+                    field.onChange(arrayValue);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+        }}
+      />
+      <FormField control={form.control} name="imageUrl" render={({ field }) => (
+        <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="imageHint" render={({ field }) => (
+        <FormItem><FormLabel>Image Hint (for AI)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="liveUrl" render={({ field }) => (
+        <FormItem><FormLabel>Live Demo URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="githubUrl" render={({ field }) => (
+        <FormItem><FormLabel>GitHub URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+      )} />
+    </>
+  );
+};
+
 
 const RenderItem = (item: Project, onEdit: (item: Project) => void, onDelete: (id: string) => void) => (
   <div key={item.id} className="flex items-center justify-between gap-4 rounded-lg border p-3">
