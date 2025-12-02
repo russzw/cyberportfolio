@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   DocumentReference,
   onSnapshot,
@@ -12,6 +12,8 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from './use-toast';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useMemoFirebase } from '@/firebase';
 
 type WithId<T> = T & { id: string };
 
@@ -20,7 +22,7 @@ export interface UseDocumentResult<T> {
   isLoading: boolean;
   error: FirestoreError | Error | null;
   isUpdating: boolean;
-  updateDocument: (data: Partial<T>) => Promise<void>;
+  updateDocument: (data: Partial<T>) => void;
 }
 
 export function useDocument<T = any>(
@@ -31,9 +33,12 @@ export function useDocument<T = any>(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  const memoizedDocRef = useMemoFirebase(() => docRef, [docRef]);
+
 
   useEffect(() => {
-    if (!docRef) {
+    if (!memoizedDocRef) {
       setData(null);
       setIsLoading(false);
       setError(null);
@@ -42,7 +47,7 @@ export function useDocument<T = any>(
 
     setIsLoading(true);
     const unsubscribe = onSnapshot(
-      docRef,
+      memoizedDocRef,
       (snapshot: DocumentSnapshot<DocumentData>) => {
         if (snapshot.exists()) {
           setData({ ...(snapshot.data() as T), id: snapshot.id });
@@ -55,7 +60,7 @@ export function useDocument<T = any>(
       (err: FirestoreError) => {
         const contextualError = new FirestorePermissionError({
           operation: 'get',
-          path: docRef.path,
+          path: memoizedDocRef.path,
         });
         setError(contextualError);
         setData(null);
@@ -65,10 +70,10 @@ export function useDocument<T = any>(
     );
 
     return () => unsubscribe();
-  }, [docRef]);
+  }, [memoizedDocRef]);
 
-  const updateDocument = async (updateData: Partial<T>) => {
-    if (!docRef) {
+  const updateDocument = (updateData: Partial<T>) => {
+    if (!memoizedDocRef) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -77,28 +82,12 @@ export function useDocument<T = any>(
       return;
     }
     setIsUpdating(true);
-    try {
-      await setDoc(docRef, updateData, { merge: true });
-      toast({
-        title: 'Success!',
-        description: 'Content has been updated successfully.',
-      });
-    } catch (err: any) {
-      const contextualError = new FirestorePermissionError({
-        operation: 'update',
-        path: docRef.path,
-        requestResourceData: updateData,
-      });
-      setError(contextualError);
-      errorEmitter.emit('permission-error', contextualError);
-       toast({
-        variant: 'destructive',
-        title: 'Update Failed',
-        description: 'You do not have permission to perform this action.',
-      });
-    } finally {
-      setIsUpdating(false);
-    }
+    setDocumentNonBlocking(memoizedDocRef, updateData, { merge: true });
+    toast({
+      title: 'Success!',
+      description: 'Content is being updated.',
+    });
+    setIsUpdating(false);
   };
 
 
