@@ -5,11 +5,11 @@ import { Section } from "@/components/shared/Section";
 import { AnimatedTitle } from "@/components/shared/AnimatedTitle";
 import { cn } from "@/lib/utils";
 import { useOnScreen } from "@/hooks/use-on-screen";
-import type { ExperienceItem } from "@/lib/types";
+import type { ExperienceItem as Experience } from "@/lib/types";
 import { Briefcase } from "lucide-react";
 
 interface TimelineItemProps {
-  item: ExperienceItem;
+  item: Experience;
   isLast: boolean;
 }
 
@@ -40,14 +40,14 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ item, isLast }) => {
 };
 
 
-export function Experience({ data }: { data: ExperienceItem[] }) {
+export function Experience({ data }: { data: Experience[] }) {
   return (
     <Section id="experience">
       <AnimatedTitle text="Work Experience" />
       <div className="max-w-3xl mx-auto">
         <div className="relative">
           {data.map((item, index) => (
-            <TimelineItem key={index} item={item} isLast={index === data.length - 1} />
+            <TimelineItem key={item.id} item={item} isLast={index === data.length - 1} />
           ))}
         </div>
       </div>
