@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,21 +40,25 @@ export function CrudManager<T extends { id: string }>({
   const [editingItem, setEditingItem] = useState<T | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Derive default values from the Zod schema, ensuring no undefined values
+  const defaultValues = React.useMemo(() => {
+    const parsed = Schema.safeParse({});
+    if (parsed.success) {
+      return parsed.data;
+    }
+    return {};
+  }, [Schema]);
+
   const form = useForm({
     resolver: zodResolver(Schema),
-    defaultValues: editingItem || {},
+    defaultValues: editingItem || defaultValues,
   });
 
   React.useEffect(() => {
     if (isDialogOpen) {
-      if (editingItem) {
-        form.reset(editingItem);
-      } else {
-        // @ts-ignore
-        form.reset(Schema.default({})._def.defaultValue);
-      }
+      form.reset(editingItem || defaultValues);
     }
-  }, [isDialogOpen, editingItem, form, Schema]);
+  }, [isDialogOpen, editingItem, form, defaultValues]);
 
   const handleEdit = (item: T) => {
     setEditingItem(item);

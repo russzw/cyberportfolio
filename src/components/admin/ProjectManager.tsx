@@ -12,16 +12,16 @@ import { Badge } from '../ui/badge';
 import Image from 'next/image';
 
 const ProjectSchema = z.object({
-  name: z.string().min(1, 'Name is required.'),
-  description: z.string().min(1, 'Description is required.'),
-  tech: z.union([z.string(), z.array(z.string())]).transform(val => {
+  name: z.string().min(1, 'Name is required.').default(''),
+  description: z.string().min(1, 'Description is required.').default(''),
+  tech: z.union([z.string(), z.array(z.string())]).default([]).transform(val => {
     if (Array.isArray(val)) return val;
-    return val.split(',').map(s => s.trim());
+    return val.split(',').map(s => s.trim()).filter(Boolean);
   }),
-  imageUrl: z.string().url('Must be a valid URL.'),
-  imageHint: z.string().optional(),
-  liveUrl: z.string().url('Must be a valid URL.'),
-  githubUrl: z.string().url('Must be a valid URL.'),
+  imageUrl: z.string().url('Must be a valid URL.').default('https://picsum.photos/seed/placeholder/600/400'),
+  imageHint: z.string().optional().default(''),
+  liveUrl: z.string().url('Must be a valid URL.').default('https://example.com'),
+  githubUrl: z.string().url('Must be a valid URL.').default('https://github.com'),
 });
 
 type Project = z.infer<typeof ProjectSchema> & { id: string };
@@ -35,13 +35,19 @@ const FormFields = (form: any) => (
       <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
     )} />
     <FormField control={form.control} name="tech" render={({ field }) => (
-      <FormItem><FormLabel>Tech Stack (comma-separated)</FormLabel><FormControl><Input {...field} value={Array.isArray(field.value) ? field.value.join(', ') : ''} /></FormControl><FormMessage /></FormItem>
+      <FormItem>
+        <FormLabel>Tech Stack (comma-separated)</FormLabel>
+        <FormControl>
+          <Input {...field} value={Array.isArray(field.value) ? field.value.join(', ') : ''} />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
     )} />
     <FormField control={form.control} name="imageUrl" render={({ field }) => (
       <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
     )} />
      <FormField control={form.control} name="imageHint" render={({ field }) => (
-      <FormItem><FormLabel>Image Hint (for AI)</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+      <FormItem><FormLabel>Image Hint (for AI)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
     )} />
     <FormField control={form.control} name="liveUrl" render={({ field }) => (
       <FormItem><FormLabel>Live Demo URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>

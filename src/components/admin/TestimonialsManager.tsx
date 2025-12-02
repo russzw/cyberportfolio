@@ -10,9 +10,9 @@ import { Button } from '../ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
 
 const TestimonialSchema = z.object({
-  author: z.string().min(1, 'Author is required.'),
-  role: z.string().min(1, 'Role is required.'),
-  text: z.string().min(1, 'Testimonial text is required.'),
+  author: z.string().min(1, 'Author is required.').default(''),
+  role: z.string().min(1, 'Role is required.').default(''),
+  text: z.string().min(1, 'Testimonial text is required.').default(''),
 });
 
 type Testimonial = z.infer<typeof TestimonialSchema> & { id: string };

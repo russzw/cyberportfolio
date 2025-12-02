@@ -10,10 +10,10 @@ import { Button } from '../ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
 
 const ExperienceSchema = z.object({
-  role: z.string().min(1, 'Role is required.'),
-  company: z.string().min(1, 'Company is required.'),
-  duration: z.string().min(1, 'Duration is required.'),
-  description: z.string().min(1, 'Description is required.'),
+  role: z.string().min(1, 'Role is required.').default(''),
+  company: z.string().min(1, 'Company is required.').default(''),
+  duration: z.string().min(1, 'Duration is required.').default(''),
+  description: z.string().min(1, 'Description is required.').default(''),
 });
 
 type Experience = z.infer<typeof ExperienceSchema> & { id: string };

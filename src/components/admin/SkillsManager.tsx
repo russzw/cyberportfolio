@@ -10,8 +10,8 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { TechIcon } from '../icons/TechIcons';
 
 const SkillSchema = z.object({
-  name: z.string().min(1, 'Name is required.'),
-  icon: z.string().min(1, 'Icon name is required (e.g., "react", "typescript").'),
+  name: z.string().min(1, 'Name is required.').default(''),
+  icon: z.string().min(1, 'Icon name is required (e.g., "react", "typescript").').default(''),
 });
 
 type Skill = z.infer<typeof SkillSchema> & { id: string };
