@@ -1,10 +1,13 @@
 "use client";
 
+import React from "react";
+import Link from "next/link";
+import { Flame, Menu } from "lucide-react";
+
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { FireExtinguisher, Flame } from "lucide-react";
-import React from "react";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -16,6 +19,7 @@ const navLinks = [
 
 export default function Header() {
   const [scrolled, setScrolled] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +28,8 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <header
@@ -35,18 +41,43 @@ export default function Header() {
       )}
     >
       <div className="container flex h-16 items-center">
-        <a href="#home" className="mr-auto flex items-center gap-2 font-bold text-lg">
+        <Link href="#home" className="mr-auto flex items-center gap-2 font-bold text-lg">
           dev<Flame className="h-5 w-5 text-primary" />russ
-        </a>
+        </Link>
         <nav className="hidden items-center gap-2 md:flex">
           {navLinks.map((link) => (
             <Button key={link.name} variant="ghost" asChild>
-              <a href={link.href}>{link.name}</a>
+              <Link href={link.href}>{link.name}</Link>
             </Button>
           ))}
         </nav>
-        <div className="ml-4">
-          <ThemeToggle />
+        
+        <div className="flex items-center gap-2 ml-4">
+            <ThemeToggle />
+            <div className="md:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open menu</span>
+                </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                    <div className="flex flex-col gap-4 p-4">
+                        <Link href="#home" className="mr-auto flex items-center gap-2 font-bold text-lg" onClick={closeMobileMenu}>
+                            dev<Flame className="h-5 w-5 text-primary" />russ
+                        </Link>
+                        <nav className="flex flex-col items-start gap-2">
+                        {navLinks.map((link) => (
+                            <Button key={link.name} variant="ghost" className="w-full justify-start" asChild>
+                                <Link href={link.href} onClick={closeMobileMenu}>{link.name}</Link>
+                            </Button>
+                        ))}
+                        </nav>
+                    </div>
+                </SheetContent>
+            </Sheet>
+            </div>
         </div>
       </div>
     </header>
