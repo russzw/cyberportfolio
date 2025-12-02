@@ -35,15 +35,16 @@ export function Contact() {
 
   const initialState: ContactFormState = { success: false, message: "", errors: null };
 
-  const [state, formAction] = useActionState(async (prevState, formData) => {
-    const result = await submitContactForm(prevState, formData);
-    if (result.success) {
+  const [state, formAction] = useActionState(submitContactForm, initialState);
+
+  React.useEffect(() => {
+    if (state.success) {
       setName("");
       setEmail("");
       setMessage("");
     }
-    return result;
-  }, initialState);
+  }, [state.success]);
+
 
   return (
     <Section id="contact" className="bg-secondary/20">
