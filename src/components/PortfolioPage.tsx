@@ -10,27 +10,43 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { Contact } from "@/components/sections/Contact";
 import { getPortfolioData } from "@/lib/firestore";
 import type { PortfolioData } from "@/lib/types";
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { Skeleton } from './ui/skeleton';
+import { Loader2 } from 'lucide-react';
+import { LoginForm } from './admin/LoginForm';
 
 export function PortfolioPage() {
   const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       if (firestore) {
-        setIsLoading(true);
+        setIsDataLoading(true);
         const data = await getPortfolioData(firestore);
         setPortfolioData(data);
-        setIsLoading(false);
+        setIsDataLoading(false);
       }
     }
     fetchData();
   }, [firestore]);
 
-  if (isLoading) {
+  if (isUserLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginForm />;
+  }
+
+  if (isDataLoading) {
     return (
       <div className="space-y-12 my-12">
         <div className="container">
