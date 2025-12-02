@@ -135,11 +135,21 @@ const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
 );
 
 const formatDateRange = (start: any, end: any) => {
+    // Check if start or end is a Firestore Timestamp and convert it
     const startDate = start?.toDate ? start.toDate() : new Date(start);
     const endDate = end?.toDate ? end.toDate() : (end ? new Date(end) : null);
-    
+
+    // Validate dates before formatting
+    if (isNaN(startDate.getTime())) {
+        return "Invalid start date";
+    }
+
     const startFormatted = format(startDate, "MMM yyyy");
+
     if (endDate) {
+        if (isNaN(endDate.getTime())) {
+            return `${startFormatted} - Invalid end date`;
+        }
         const endFormatted = format(endDate, "MMM yyyy");
         return `${startFormatted} - ${endFormatted}`;
     }
