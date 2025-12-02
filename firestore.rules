@@ -1,3 +1,4 @@
+
 /**
  * Core Philosophy: This ruleset implements a Public-Read, Admin-Write security model.
  * All content collections are publicly readable by any user, including unauthenticated
@@ -39,6 +40,10 @@ service cloud.firestore {
      */
     function isAdmin() {
       return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
     /**
@@ -120,14 +125,15 @@ service cloud.firestore {
     }
 
     /**
-     * @description Manages the list of administrators. Access is restricted to other admins.
+     * @description Manages the list of administrators. Access is restricted.
      * @path /roles_admin/{userId}
-     * @allow (create) An existing admin can add another user as an admin.
-     * @deny (list) A non-administrative user cannot list all admins.
-     * @principle Secures the admin role management system itself.
+     * @allow (get) An authenticated user can check their own admin status.
+     * @deny (list) Listing all admins is forbidden to prevent user enumeration.
+     * @principle Secures the admin role management system while allowing self-checks.
      */
     match /roles_admin/{userId} {
-      allow get, list: if isAdmin();
+      allow get: if isOwner(userId);
+      allow list: if isAdmin();
       allow create, update, delete: if isAdmin();
     }
   }
