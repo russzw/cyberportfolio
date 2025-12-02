@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { Section } from "@/components/shared/Section";
 import { AnimatedTitle } from "@/components/shared/AnimatedTitle";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +30,7 @@ function SubmitButton() {
 export function Contact() {
   const formRef = React.useRef<HTMLFormElement>(null);
   const initialState: ContactFormState = { success: false, message: "", errors: null };
-  const [state, formAction] = useFormState(submitContactForm, initialState);
+  const [state, formAction] = useActionState(submitContactForm, initialState);
 
   React.useEffect(() => {
     if (state.success) {
