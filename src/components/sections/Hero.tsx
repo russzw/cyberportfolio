@@ -53,7 +53,7 @@ export function Hero({ data }: { data: HeroData }) {
   }, [data]); // Rerun animation when data changes
 
   return (
-    <section ref={heroRef} id="home" className="relative flex h-[80vh] min-h-[450px] w-full items-center justify-center">
+    <section ref={heroRef} id="home" className="relative flex h-[70vh] min-h-[450px] w-full items-center justify-center">
       <CyberGridBackground />
       <div className="relative z-20 text-center">
         <h1
