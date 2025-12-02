@@ -1,8 +1,10 @@
+
 "use server";
 
 import { z } from "zod";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, serverTimestamp } from "firebase/firestore";
 import { initializeFirebase } from "@/firebase";
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -38,24 +40,19 @@ export async function submitContactForm(
     };
   }
   
-  try {
-    const { firestore } = initializeFirebase();
-    await addDoc(collection(firestore, "contact_form_submissions"), {
-      ...validatedFields.data,
-      createdAt: serverTimestamp(),
-    });
+  const { firestore } = initializeFirebase();
+  const submissionsCollection = collection(firestore, "contact_form_submissions");
+  
+  // The promise is intentionally not awaited to avoid blocking.
+  // Error handling is managed within addDocumentNonBlocking via the global error emitter.
+  addDocumentNonBlocking(submissionsCollection, {
+    ...validatedFields.data,
+    createdAt: serverTimestamp(),
+  });
 
-    return {
-      success: true,
-      message: "Thank you for your message! I'll get back to you soon.",
-      errors: null,
-    };
-  } catch (error) {
-    console.error("Error adding document: ", error);
-    return {
-      success: false,
-      message: "An unexpected error occurred. Please try again later.",
-      errors: null,
-    };
-  }
+  return {
+    success: true,
+    message: "Thank you for your message! I'll get back to you soon.",
+    errors: null,
+  };
 }
