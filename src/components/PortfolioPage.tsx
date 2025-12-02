@@ -13,6 +13,7 @@ import type { PortfolioData } from "@/lib/types";
 import { useFirestore } from '@/firebase';
 import { Skeleton } from './ui/skeleton';
 import { Loader2 } from 'lucide-react';
+import { submitContactForm } from '@/app/actions';
 
 export function PortfolioPage() {
   const firestore = useFirestore();
@@ -75,7 +76,7 @@ export function PortfolioPage() {
       <Experience data={portfolioData.experience} />
       <Projects data={portfolioData.projects} />
       <Testimonials data={portfolioData.testimonials} />
-      <Contact />
+      <Contact contactFormAction={submitContactForm} />
     </>
   );
 }

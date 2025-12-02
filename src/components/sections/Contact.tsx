@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send } from "lucide-react";
-import { submitContactForm, type ContactFormState } from "@/app/actions";
+import { type ContactFormState } from "@/app/actions";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -28,14 +28,18 @@ function SubmitButton() {
   );
 }
 
-export function Contact() {
+interface ContactProps {
+  contactFormAction: (prevState: ContactFormState, formData: FormData) => Promise<ContactFormState>;
+}
+
+export function Contact({ contactFormAction }: ContactProps) {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
 
   const initialState: ContactFormState = { success: false, message: "", errors: null };
 
-  const [state, formAction] = useActionState(submitContactForm, initialState);
+  const [state, formAction] = useActionState(contactFormAction, initialState);
 
   React.useEffect(() => {
     if (state.success) {
