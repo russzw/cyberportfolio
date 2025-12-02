@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,6 +20,9 @@ interface CrudManagerProps<T extends { id: string }> {
   renderItem: (item: T, onEdit: (item: T) => void, onDelete: (id: string) => void) => React.ReactNode;
   title: string;
   description: string;
+  initialData: T[];
+  isLoading: boolean;
+  onDataChange: (data: T[]) => void;
 }
 
 export function CrudManager<T extends { id: string }>({
@@ -29,12 +32,12 @@ export function CrudManager<T extends { id: string }>({
   renderItem,
   title,
   description,
+  initialData,
+  isLoading,
+  onDataChange,
 }: CrudManagerProps<T>) {
   const firestore = useFirestore();
   const { toast } = useToast();
-  const collectionRef = useMemoFirebase(() => collection(firestore, collectionName), [firestore, collectionName]);
-
-  const { data: items, isLoading, error } = useCollection<T>(collectionRef);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<T | null>(null);
@@ -72,21 +75,28 @@ export function CrudManager<T extends { id: string }>({
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
+    if (!firestore) return;
     deleteDocumentNonBlocking(doc(firestore, collectionName, id));
+    onDataChange(initialData.filter(item => item.id !== id));
     toast({ title: 'Success', description: 'Item deleted successfully.' });
   };
 
   const onSubmit = async (values: z.infer<typeof Schema>) => {
+    if(!firestore) return;
     setIsSubmitting(true);
     if (editingItem) {
       updateDocumentNonBlocking(doc(firestore, collectionName, editingItem.id), {
         ...values
       });
+      onDataChange(initialData.map(item => item.id === editingItem.id ? { ...editingItem, ...values } : item));
       toast({ title: 'Success', description: 'Item updated successfully.' });
     } else {
-      addDocumentNonBlocking(collection(firestore, collectionName), {
+      const newDocRef = await addDocumentNonBlocking(collection(firestore, collectionName), {
         ...values,
       });
+      if (newDocRef) {
+        onDataChange([{ id: newDocRef.id, ...values } as T, ...initialData]);
+      }
       toast({ title: 'Success', description: 'Item added successfully.' });
     }
     setIsDialogOpen(false);
@@ -108,10 +118,9 @@ export function CrudManager<T extends { id: string }>({
       </CardHeader>
       <CardContent>
         {isLoading && <div className="flex justify-center"><Loader2 className="animate-spin" /></div>}
-        {error && <p className="text-destructive">Error: {error.message}</p>}
         <div className="space-y-4">
-          {items && items.map((item) => renderItem(item, handleEdit, handleDelete))}
-          {items && items.length === 0 && <p className="text-center text-muted-foreground">No items found.</p>}
+          {initialData && initialData.map((item) => renderItem(item, handleEdit, handleDelete))}
+          {!isLoading && initialData && initialData.length === 0 && <p className="text-center text-muted-foreground">No items found.</p>}
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

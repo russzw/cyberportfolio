@@ -2,14 +2,19 @@
 
 import React from 'react';
 import { z } from 'zod';
-import { CrudManager } from './CrudManager';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Plus, Loader2 } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
+import { useFirestore } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { getCollectionData } from '@/lib/firestore';
+import { CrudManager } from './CrudManager';
+import type { Project } from '@/lib/types';
+
 
 const ProjectSchema = z.object({
   name: z.string().min(1, 'Name is required.').default(''),
@@ -21,7 +26,6 @@ const ProjectSchema = z.object({
   githubUrl: z.string().url('Must be a valid URL.').default('https://github.com'),
 });
 
-type Project = z.infer<typeof ProjectSchema> & { id: string };
 
 const FormFields = (form: any) => {
   return (
@@ -60,13 +64,8 @@ const FormFields = (form: any) => {
             <FormLabel>Tech Stack (comma-separated)</FormLabel>
             <FormControl>
               <Input
-                {...field}
                 value={Array.isArray(field.value) ? field.value.join(', ') : ''}
-                onChange={e => {
-                  const stringFromInput = e.target.value;
-                  const arrayValue = stringFromInput.split(',').map(s => s.trim()).filter(Boolean);
-                  field.onChange(arrayValue);
-                }}
+                onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
               />
             </FormControl>
             <FormMessage />
@@ -149,14 +148,34 @@ const RenderItem = (item: Project, onEdit: (item: Project) => void, onDelete: (i
 );
 
 export function ProjectManager() {
+  const firestore = useFirestore();
+  const [data, setData] = React.useState<Project[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (firestore) {
+      getCollectionData<Project>(firestore, "projects").then(projects => {
+        setData(projects.map(p => ({...p, tech: Array.isArray(p.tech) ? p.tech : []})));
+        setIsLoading(false);
+      });
+    }
+  }, [firestore]);
+
+  const onDataChange = (newData: Project[]) => {
+    setData(newData);
+  };
+
   return (
-    <CrudManager
+    <CrudManager<Project>
       collectionName="projects"
       Schema={ProjectSchema}
       formFields={FormFields}
       renderItem={RenderItem}
       title="Projects"
       description="Manage your portfolio projects."
+      initialData={data}
+      isLoading={isLoading}
+      onDataChange={onDataChange}
     />
   );
 }
