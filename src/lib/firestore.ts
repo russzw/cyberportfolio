@@ -3,19 +3,22 @@ import { collection, getDocs, doc, getDoc, type Firestore } from "firebase/fires
 import type { PortfolioData, HeroData, AboutData, Skill, ExperienceItem, Project, Testimonial } from "./types";
 import sampleData from '../../sample-data.json';
 
-async function getCollectionData<T>(db: Firestore, collectionName: string): Promise<T[]> {
+export async function getCollectionData<T>(db: Firestore, collectionName: string): Promise<T[]> {
   try {
     const querySnapshot = await getDocs(collection(db, collectionName));
     if (querySnapshot.empty) {
       console.warn(`No documents found in ${collectionName} collection. Falling back to local data for this collection.`);
       // @ts-ignore
-      return (sampleData.__collections__.portfolio_content.main[collectionName] || []) as T[];
+      const fallbackData = sampleData.__collections__.portfolio_content.main[collectionName] || [];
+      // The sample data doesn't have IDs, so we'll add a placeholder
+      return fallbackData.map((item: any, index: number) => ({ ...item, id: `local-${index}` })) as T[];
     }
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T & { id: string }));
   } catch (error) {
     console.error(`Error getting ${collectionName}:`, error);
     // @ts-ignore
-    return (sampleData.__collections__.portfolio_content.main[collectionName] || []) as T[];
+    const fallbackData = sampleData.__collections__.portfolio_content.main[collectionName] || [];
+    return fallbackData.map((item: any, index: number) => ({ ...item, id: `local-${index}` })) as T[];
   }
 }
 
