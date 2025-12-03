@@ -8,7 +8,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
-import { Calendar as CalendarIcon, Pencil, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Pencil, Trash2, ListPlus } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { ExperienceItem as Experience } from '@/lib/types';
@@ -26,7 +26,33 @@ const ExperienceSchema = z.object({
 });
 
 
-const FormFields = (form: any) => (
+const FormFields = (form: any) => {
+  const descriptionRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const handleAddBullet = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const textarea = descriptionRef.current;
+    if (textarea) {
+      const { selectionStart, selectionEnd, value } = textarea;
+      const bullet = '• ';
+      const newText =
+        value.substring(0, selectionStart) +
+        (value.substring(selectionStart - 1, selectionStart) === '\n' || value.length === 0 ? '' : '\n') +
+        bullet +
+        value.substring(selectionEnd);
+      
+      form.setValue('description', newText, { shouldValidate: true });
+
+      // Move cursor after the inserted bullet point
+      setTimeout(() => {
+        textarea.focus();
+        const newCursorPosition = selectionStart + bullet.length + (value.substring(selectionStart - 1, selectionStart) === '\n' || value.length === 0 ? 0 : 1);
+        textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+      }, 0);
+    }
+  };
+
+  return (
   <>
     <FormField control={form.control} name="role" render={({ field }) => (
       <FormItem><FormLabel>Role/Title</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
@@ -119,10 +145,38 @@ const FormFields = (form: any) => (
       />
     </div>
     <FormField control={form.control} name="description" render={({ field }) => (
-      <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={5} /></FormControl><FormMessage /></FormItem>
+      <FormItem>
+        <div className="flex items-center justify-between">
+          <FormLabel>Description</FormLabel>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleAddBullet}>
+                    <ListPlus className="h-4 w-4" />
+                    <span className="sr-only">Add Bullet Point</span>
+                  </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add Bullet Point</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <FormControl>
+          <Textarea 
+             {...field}
+             ref={(e) => {
+                field.ref(e);
+                // @ts-ignore
+                descriptionRef.current = e;
+             }}
+             value={field.value ?? ''} 
+             rows={5} />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
     )} />
   </>
 );
+}
 
 const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
   <TooltipProvider>
