@@ -7,6 +7,21 @@ import { cn } from "@/lib/utils";
 import { useOnScreen } from "@/hooks/use-on-screen";
 import type { ExperienceItem as Experience } from "@/lib/types";
 import { Briefcase } from "lucide-react";
+import { format } from 'date-fns';
+
+
+const formatDateRange = (startDate?: Date, endDate?: Date) => {
+    if (!startDate) {
+        return "Date not set";
+    }
+
+    const startFormatted = format(startDate, "MMM yyyy");
+
+    if (endDate) {
+        return `${startFormatted} - ${format(endDate, "MMM yyyy")}`;
+    }
+    return `${startFormatted} - Present`;
+}
 
 interface TimelineItemProps {
   item: Experience;
@@ -30,7 +45,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ item, isLast }) => {
         )} />
       </div>
       <div className="flex flex-col">
-        <p className="text-sm font-semibold text-primary">{item.duration}</p>
+        <p className="text-sm font-semibold text-primary">{formatDateRange(item.startDate, item.endDate)}</p>
         <h3 className="mt-1 text-lg font-bold text-foreground">{item.role}</h3>
         <p className="text-md text-muted-foreground">{item.company}</p>
         <p className="mt-2 text-base text-muted-foreground whitespace-pre-wrap">{item.description}</p>
