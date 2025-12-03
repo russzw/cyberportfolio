@@ -15,6 +15,7 @@ import type { ExperienceItem as Experience } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { Skeleton } from '../ui/skeleton';
+import { Timestamp } from 'firebase/firestore';
 
 const ExperienceSchema = z.object({
   role: z.string().min(1, 'Role is required.').default(''),
@@ -134,17 +135,14 @@ const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
   </TooltipProvider>
 );
 
-const formatDateRange = (startDate: Date, endDate?: Date) => {
-    if (!startDate || isNaN(startDate.getTime())) {
-        return "Invalid start date";
+const formatDateRange = (startDate?: Date, endDate?: Date) => {
+    if (!startDate) {
+        return "Date not set";
     }
 
     const startFormatted = format(startDate, "MMM yyyy");
 
     if (endDate) {
-        if (isNaN(endDate.getTime())) {
-            return `${startFormatted} - Invalid end date`;
-        }
         return `${startFormatted} - ${format(endDate, "MMM yyyy")}`;
     }
     return `${startFormatted} - Present`;
@@ -203,6 +201,18 @@ const ItemSkeleton = () => (
     </div>
 );
 
+// Helper to convert Firestore Timestamps to JS Dates in an item
+const convertTimestampsInItem = (item: any) => {
+  const newItem = { ...item };
+  if (newItem.startDate && newItem.startDate instanceof Timestamp) {
+    newItem.startDate = newItem.startDate.toDate();
+  }
+  if (newItem.endDate && newItem.endDate instanceof Timestamp) {
+    newItem.endDate = newItem.endDate.toDate();
+  }
+  return newItem;
+};
+
 export function ExperienceManager() {
   return (
     <CrudManager<Experience>
@@ -213,6 +223,7 @@ export function ExperienceManager() {
       title="Work Experience"
       description="Manage your career timeline."
       itemSkeleton={<ItemSkeleton />}
+      transformItemForEdit={convertTimestampsInItem}
     />
   );
 }

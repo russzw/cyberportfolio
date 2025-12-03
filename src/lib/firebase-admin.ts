@@ -42,7 +42,7 @@ function initializeAdminApp() {
 // This function will be the single entry point to get the admin DB.
 // It ensures initialization is attempted only when needed.
 export function adminDb() {
-  if (!adminApp) {
+  if (!db) {
     initializeAdminApp();
   }
   return db;

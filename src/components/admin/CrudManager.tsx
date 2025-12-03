@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { getCollectionData } from '@/lib/firestore';
 import { Skeleton } from '../ui/skeleton';
 
 interface CrudManagerProps<T extends { id: string }> {
@@ -28,6 +27,7 @@ interface CrudManagerProps<T extends { id: string }> {
   title: string;
   description: string;
   itemSkeleton: React.ReactNode;
+  transformItemForEdit?: (item: T) => T;
 }
 
 export function CrudManager<T extends { id: string }>({
@@ -37,7 +37,8 @@ export function CrudManager<T extends { id: string }>({
   renderItem,
   title,
   description,
-  itemSkeleton
+  itemSkeleton,
+  transformItemForEdit
 }: CrudManagerProps<T>) {
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -83,16 +84,17 @@ export function CrudManager<T extends { id: string }>({
     defaultValues: editingItem || defaultValues,
   });
 
+  const handleEdit = (item: T) => {
+    const transformedItem = transformItemForEdit ? transformItemForEdit(item) : item;
+    setEditingItem(transformedItem);
+    setIsDialogOpen(true);
+  };
+
   React.useEffect(() => {
     if (isDialogOpen) {
       form.reset(editingItem || defaultValues);
     }
   }, [isDialogOpen, editingItem, form, defaultValues]);
-
-  const handleEdit = (item: T) => {
-    setEditingItem(item);
-    setIsDialogOpen(true);
-  };
 
   const handleAddNew = () => {
     setEditingItem(null);
