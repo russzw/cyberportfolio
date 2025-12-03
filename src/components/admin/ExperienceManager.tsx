@@ -154,7 +154,7 @@ const RenderItem = (item: Experience, onEdit: (item: Experience) => void, onDele
      <div>
         <h4 className="font-semibold">{item.role} <span className="text-sm text-muted-foreground font-normal">at {item.company}</span></h4>
         <p className="text-xs text-muted-foreground">{formatDateRange(item.startDate, item.endDate)}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+        <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
     </div>
     <div className="flex gap-2 shrink-0">
         <TooltipProvider>
