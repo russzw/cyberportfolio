@@ -14,7 +14,7 @@ import type { Skill } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const iconNames = Object.keys(iconMap);
+const iconNames = Object.keys(iconMap).sort();
 
 const SkillSchema = z.object({
   name: z.string().min(1, 'Name is required.').default(''),
