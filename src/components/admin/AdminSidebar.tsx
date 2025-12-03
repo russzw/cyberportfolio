@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/admin', label: 'Main Content', icon: LayoutDashboard },
   { href: '/admin/projects', label: 'Projects', icon: Package },
-  { href: '/admin/skills', label: 'Skills', icon: Sparkles },
+  { href: '/admin/skills', label: 'Tech Stacks', icon: Sparkles },
   { href: '/admin/experience', label: 'Experience', icon: Briefcase },
   { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
   { href: '/admin/messages', label: 'Messages', icon: Send },

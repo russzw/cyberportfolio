@@ -86,7 +86,7 @@ export function SkillsManager() {
       Schema={SkillSchema}
       formFields={FormFields}
       renderItem={RenderItem}
-      title="Skills"
+      title="Tech Stacks"
       description="Manage your tech stack and skills."
       itemSkeleton={<ItemSkeleton />}
     />
