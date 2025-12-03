@@ -51,7 +51,7 @@ const FormFields = (form: any) => (
                     )}
                   >
                     {field.value ? (
-                      format(new Date(field.value), "PPP")
+                      format(field.value, "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -62,7 +62,7 @@ const FormFields = (form: any) => (
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={field.value ? new Date(field.value) : undefined}
+                  selected={field.value}
                   onSelect={field.onChange}
                   disabled={(date) =>
                     date > new Date() || date < new Date("1900-01-01")
@@ -92,7 +92,7 @@ const FormFields = (form: any) => (
                     )}
                   >
                     {field.value ? (
-                      format(new Date(field.value), "PPP")
+                      format(field.value, "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -103,7 +103,7 @@ const FormFields = (form: any) => (
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={field.value ? new Date(field.value) : undefined}
+                  selected={field.value}
                   onSelect={field.onChange}
                   disabled={(date) =>
                     date > new Date() || date < new Date("1900-01-01")
@@ -134,13 +134,8 @@ const ReadonlyTooltip = ({ children }: { children: React.ReactNode }) => (
   </TooltipProvider>
 );
 
-const formatDateRange = (start: any, end: any) => {
-    // Check if start or end is a Firestore Timestamp and convert it
-    const startDate = start?.toDate ? start.toDate() : new Date(start);
-    const endDate = end?.toDate ? end.toDate() : (end ? new Date(end) : null);
-
-    // Validate dates before formatting
-    if (isNaN(startDate.getTime())) {
+const formatDateRange = (startDate: Date, endDate?: Date) => {
+    if (!startDate || isNaN(startDate.getTime())) {
         return "Invalid start date";
     }
 
@@ -150,8 +145,7 @@ const formatDateRange = (start: any, end: any) => {
         if (isNaN(endDate.getTime())) {
             return `${startFormatted} - Invalid end date`;
         }
-        const endFormatted = format(endDate, "MMM yyyy");
-        return `${startFormatted} - ${endFormatted}`;
+        return `${startFormatted} - ${format(endDate, "MMM yyyy")}`;
     }
     return `${startFormatted} - Present`;
 }

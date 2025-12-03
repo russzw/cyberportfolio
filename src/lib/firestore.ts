@@ -1,7 +1,18 @@
 
-import { collection, getDocs, doc, getDoc, type Firestore } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, type Firestore, Timestamp } from "firebase/firestore";
 import type { PortfolioData, HeroData, AboutData, Skill, ExperienceItem, Project, Testimonial } from "./types";
 import sampleData from '../../sample-data.json';
+
+// Helper to convert Firestore Timestamps to JS Date objects
+const convertTimestamps = (data: any) => {
+  const newData = { ...data };
+  for (const key in newData) {
+    if (newData[key] instanceof Timestamp) {
+      newData[key] = newData[key].toDate();
+    }
+  }
+  return newData;
+};
 
 export async function getCollectionData<T>(db: Firestore, collectionName: string): Promise<T[]> {
   try {
@@ -11,9 +22,15 @@ export async function getCollectionData<T>(db: Firestore, collectionName: string
       // @ts-ignore
       const fallbackData = sampleData.__collections__.portfolio_content.main[collectionName] || [];
       // The sample data doesn't have IDs, so we'll add a placeholder
-      return fallbackData.map((item: any, index: number) => ({ ...item, id: `local-${index}` })) as T[];
+      return fallbackData.map((item: any, index: number) => (
+        { ...item, id: `local-${index}` }
+      )) as T[];
     }
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T & { id: string }));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const dataWithConvertedTimestamps = convertTimestamps(data);
+      return { id: doc.id, ...dataWithConvertedTimestamps } as T & { id: string };
+    });
   } catch (error) {
     console.error(`Error getting ${collectionName}:`, error);
     // @ts-ignore

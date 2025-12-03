@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase/firestore";
 
 export interface HeroData {
   name: string;
@@ -19,8 +18,8 @@ export interface ExperienceItem {
   id: string;
   role: string;
   company: string;
-  startDate: Timestamp | Date;
-  endDate?: Timestamp | Date;
+  startDate: Date;
+  endDate?: Date;
   description: string;
 }
 
