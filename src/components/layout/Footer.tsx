@@ -1,10 +1,11 @@
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Github, Linkedin, Twitter, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const socialLinks = [
-  { name: "GitHub", icon: Github, href: "https://github.com" },
-  { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com" },
-  { name: "Twitter/X", icon: Twitter, href: "https://x.com" },
+  { name: "GitHub", icon: Github, href: "https://github.com/russzw" },
+  { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/in/russellzw" },
+  { name: "Twitter/X", icon: Twitter, href: "https://x.com/russ_zw" },
+  { name: "Instagram", icon: Instagram, href: "https://instagram.com/russzw" },
 ];
 
 export default function Footer() {
