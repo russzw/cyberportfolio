@@ -33,7 +33,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ item, isLast }) => {
         <p className="text-sm font-semibold text-primary">{item.duration}</p>
         <h3 className="mt-1 text-lg font-bold text-foreground">{item.role}</h3>
         <p className="text-md text-muted-foreground">{item.company}</p>
-        <p className="mt-2 text-base text-muted-foreground">{item.description}</p>
+        <p className="mt-2 text-base text-muted-foreground whitespace-pre-wrap">{item.description}</p>
       </div>
     </div>
   );
