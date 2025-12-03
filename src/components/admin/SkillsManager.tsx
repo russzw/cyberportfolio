@@ -7,16 +7,18 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
-import { TechIcon } from '../icons/TechIcons';
+import { TechIcon, iconMap } from '../icons/TechIcons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { Skill } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
+const iconNames = Object.keys(iconMap);
 
 const SkillSchema = z.object({
   name: z.string().min(1, 'Name is required.').default(''),
-  icon: z.string().min(1, 'Icon name is required (e.g., "react", "typescript").').default(''),
+  icon: z.string().min(1, 'Icon name is required.').default(''),
 });
 
 const FormFields = (form: any) => (
@@ -24,9 +26,33 @@ const FormFields = (form: any) => (
     <FormField control={form.control} name="name" render={({ field }) => (
       <FormItem><FormLabel>Skill Name</FormLabel><FormControl><Input {...field} placeholder="e.g., React" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
     )} />
-    <FormField control={form.control} name="icon" render={({ field }) => (
-      <FormItem><FormLabel>Icon ID</FormLabel><FormControl><Input {...field} placeholder="e.g., react" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-    )} />
+    <FormField
+      control={form.control}
+      name="icon"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Icon</FormLabel>
+          <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an icon" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {iconNames.map((iconName) => (
+                <SelectItem key={iconName} value={iconName}>
+                  <div className="flex items-center gap-2">
+                    <TechIcon name={iconName} className="w-4 h-4" />
+                    <span>{iconName.charAt(0).toUpperCase() + iconName.slice(1)}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   </>
 );
 

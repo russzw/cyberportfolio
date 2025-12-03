@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -49,14 +49,33 @@ export function CrudManager<T extends { id: string }>({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
-    if (firestore) {
-      setIsLoading(true);
-      getCollectionData<T>(firestore, collectionName).then(items => {
-        setData(items as T[]);
-        setIsLoading(false);
+    if (!firestore) return;
+
+    setIsLoading(true);
+    const collectionRef = collection(firestore, collectionName);
+    const unsubscribe = onSnapshot(collectionRef, (snapshot) => {
+        if (snapshot.empty && collectionName !== 'contact_form_submissions') {
+             getCollectionData<T>(firestore, collectionName).then(items => {
+                setData(items as T[]);
+                setIsLoading(false);
+            });
+        } else {
+            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+            setData(items);
+            setIsLoading(false);
+        }
+    }, (error) => {
+      console.error(`Error fetching ${collectionName}:`, error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: `Could not fetch ${title}.`,
       });
-    }
-  }, [firestore, collectionName]);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [firestore, collectionName, title, toast]);
 
   const defaultValues = React.useMemo(() => {
     const parsed = Schema.safeParse({});
@@ -91,7 +110,6 @@ export function CrudManager<T extends { id: string }>({
     if (!window.confirm('Are you sure you want to delete this item?')) return;
     if (!firestore) return;
     deleteDocumentNonBlocking(doc(firestore, collectionName, id));
-    setData(data.filter(item => item.id !== id));
     toast({ title: 'Success', description: 'Item deleted successfully.' });
   };
 
@@ -102,15 +120,11 @@ export function CrudManager<T extends { id: string }>({
       updateDocumentNonBlocking(doc(firestore, collectionName, editingItem.id), {
         ...values,
       });
-      setData(data.map(item => item.id === editingItem.id ? { ...editingItem, ...values } : item));
       toast({ title: 'Success', description: 'Item updated successfully.' });
     } else {
-      const newDocRef = await addDocumentNonBlocking(collection(firestore, collectionName), {
+      await addDocumentNonBlocking(collection(firestore, collectionName), {
         ...values,
       });
-      if (newDocRef) {
-        setData([{ id: newDocRef.id, ...values } as T, ...data]);
-      }
       toast({ title: 'Success', description: 'Item added successfully.' });
     }
     setIsDialogOpen(false);
