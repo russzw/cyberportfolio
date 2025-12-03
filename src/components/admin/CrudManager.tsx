@@ -156,25 +156,27 @@ export function CrudManager<T extends { id: string }>({
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
+             <DialogHeader>
               <DialogTitle>{editingItem ? `Edit ${title.slice(0,-1)}` : `Add New ${title.slice(0,-1)}`}</DialogTitle>
-              <DialogDescription>
+               <DialogDescription>
                 {editingItem ? `Make changes to this ${title.slice(0, -1).toLowerCase()}.` : `Fill out the form to add a new ${title.slice(0, -1).toLowerCase()}.`}
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[70vh] -mx-6 px-6">
-                <FormProvider {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 grid">
+            <FormProvider {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 grid flex-1">
+                <ScrollArea className="pr-6 -mr-6 h-full">
+                  <div className="grid gap-4">
                     {formFields(form)}
-                     <DialogFooter>
-                        <Button type="submit" disabled={isSubmitting}>
-                          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          {editingItem ? 'Save Changes' : 'Create'}
-                        </Button>
-                    </DialogFooter>
-                  </form>
-                </FormProvider>
-            </ScrollArea>
+                  </div>
+                </ScrollArea>
+                <DialogFooter>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {editingItem ? 'Save Changes' : 'Create'}
+                    </Button>
+                </DialogFooter>
+              </form>
+            </FormProvider>
           </DialogContent>
         </Dialog>
       </CardHeader>
