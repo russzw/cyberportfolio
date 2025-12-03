@@ -1,19 +1,19 @@
 # Next.js & Firebase Portfolio Starter
 
-This is a portfolio website starter kit built with Next.js, Firebase, and Tailwind CSS, all managed within Firebase Studio. It features a full-stack setup with a content management system (CMS) for easy updates.
+This is a portfolio website starter kit built with Next.js, Firebase, Genkit, and Tailwind CSS, all managed within Firebase Studio. It features a full-stack setup with a content management system (CMS) for easy updates.
 
 ## ✨ Features
 
 - **Modern Tech Stack**: Built with Next.js App Router, React Server Components, and TypeScript.
 - **Styling**: Styled with Tailwind CSS and ShadCN UI components for a professional and customizable look.
 - **Firebase Integration**: Uses Firebase for authentication, Firestore database, and hosting.
-- **Admin Dashboard**: A secure admin panel to manage all portfolio content, including projects, skills, experience, and testimonials.
-- **Dynamic Content**: Fetches content from Firestore with a local JSON fallback for easy development.
 - **AI-Ready**: Integrated with Genkit for generative AI capabilities.
+- **Admin Dashboard**: A secure admin panel to manage all portfolio content, including projects, skills, experience, and testimonials.
+- **Dynamic Content & Automatic Seeding**: Fetches content from Firestore. If the database is empty, it automatically populates itself with sample data from a local JSON file, allowing you to get started immediately.
 
 ## 🚀 Getting Started
 
-To get the development server running:
+To get the development server running (with Turbopack for speed):
 
 ```bash
 npm run dev
@@ -44,13 +44,14 @@ Here's a quick overview of the key directories:
 - `src/ai/`: Contains Genkit flows for AI-powered features.
 - `docs/`: Contains backend configuration and schema definitions.
 - `public/`: Static assets like images and fonts.
+- `sample-data.json`: Contains the initial content used to seed the database.
 
 ## 🔑 Admin Panel
 
 You can access the admin panel by navigating to `/admin`.
 
-- **Authentication**: The admin panel is protected by Firebase Authentication. You will need to create an admin user and grant them privileges in Firestore.
-- **Content Management**: Once logged in, you can create, update, and delete content for all sections of your portfolio.
+- **Authentication**: The admin panel is protected by Firebase Authentication.
+- **Automatic Content Seeding**: On first run, the app will automatically populate the Firestore database with the content from `sample-data.json`. You can then edit this content directly in the admin panel.
 
 To grant admin access to a user:
 1. Go to your Firebase Console.

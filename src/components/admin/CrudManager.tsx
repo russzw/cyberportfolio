@@ -54,22 +54,15 @@ export function CrudManager<T extends { id: string }>({
     setIsLoading(true);
     const collectionRef = collection(firestore, collectionName);
     const unsubscribe = onSnapshot(collectionRef, (snapshot) => {
-        if (snapshot.empty && collectionName !== 'contact_form_submissions') {
-             getCollectionData<T>(firestore, collectionName).then(items => {
-                setData(items as T[]);
-                setIsLoading(false);
-            });
-        } else {
-            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
-            setData(items);
-            setIsLoading(false);
-        }
+        const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+        setData(items);
+        setIsLoading(false);
     }, (error) => {
       console.error(`Error fetching ${collectionName}:`, error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: `Could not fetch ${title}.`,
+        description: `Could not fetch ${title}. Check permissions and configuration.`,
       });
       setIsLoading(false);
     });
@@ -176,7 +169,7 @@ export function CrudManager<T extends { id: string }>({
               return renderItem(item, handleEdit, handleDelete, isReadonly);
             })
           ) : (
-            <p className="text-center text-muted-foreground py-8">No items found. Click "Add New" to get started.</p>
+            <p className="text-center text-muted-foreground py-8">No items found. Add content to see it here.</p>
           )}
         </div>
       </CardContent>
