@@ -18,7 +18,12 @@ import { Skeleton } from '../ui/skeleton';
 const ProjectSchema = z.object({
   name: z.string().min(1, 'Name is required.').default(''),
   description: z.string().min(1, 'Description is required.').default(''),
-  tech: z.array(z.string()).default([]),
+  tech: z.union([z.array(z.string()), z.string()]).transform(val => {
+    if (typeof val === 'string') {
+      return val.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return val;
+  }).default([]),
   imageUrl: z.string().url('Must be a valid URL.').default('https://picsum.photos/seed/placeholder/600/400'),
   imageHint: z.string().optional().default(''),
   liveUrl: z.string().url('Must be a valid URL.').default('https://example.com'),
@@ -62,46 +67,50 @@ const FormFields = (form: any) => {
   );
 };
 
-const RenderItem = (item: Project, onEdit: (item: Project) => void, onDelete: (id: string) => void, isReadonly: boolean) => (
-  <div key={item.id} className={cn("flex items-center justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/30")}>
-    <div className="flex items-center gap-4">
-       <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover aspect-video h-16 w-16" />
-        <div>
-            <h4 className="font-semibold">{item.name}</h4>
-            <div className="flex flex-wrap gap-1 mt-1">
-                {Array.isArray(item.tech) && item.tech.map(t => <Badge key={t} variant="secondary">{t}</Badge>)}
+const RenderItem = (item: Project, onEdit: (item: Project) => void, onDelete: (id: string) => void, isReadonly: boolean) => {
+    const techArray = Array.isArray(item.tech) ? item.tech : (typeof item.tech === 'string' ? item.tech.split(',').map(t => t.trim()) : []);
+    
+    return (
+      <div key={item.id} className={cn("flex items-center justify-between gap-4 rounded-lg border p-3", isReadonly && "bg-muted/30")}>
+        <div className="flex items-center gap-4">
+           <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover aspect-video h-16 w-16" />
+            <div>
+                <h4 className="font-semibold">{item.name}</h4>
+                <div className="flex flex-wrap gap-1 mt-1">
+                    {techArray.map(t => <Badge key={t} variant="secondary">{t}</Badge>)}
+                </div>
             </div>
         </div>
-    </div>
-    <div className="flex gap-2 shrink-0">
-       <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={cn(isReadonly && "cursor-not-allowed")}>
-                <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Edit Item</p>}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex gap-2 shrink-0">
+           <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={cn(isReadonly && "cursor-not-allowed")}>
+                    <Button variant="outline" size="icon" onClick={() => onEdit(item)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Pencil className="h-4 w-4" /></Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Edit Item</p>}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={cn(isReadonly && "cursor-not-allowed")}>
-                <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Delete Item</p>}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-    </div>
-  </div>
-);
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={cn(isReadonly && "cursor-not-allowed")}>
+                    <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)} disabled={isReadonly} className={cn(isReadonly && "pointer-events-none")}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isReadonly ? <p>This is fallback data. Add it to Firestore to edit.</p> : <p>Delete Item</p>}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+        </div>
+      </div>
+    );
+};
 
 const ItemSkeleton = () => (
     <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
