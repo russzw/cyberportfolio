@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useLayoutEffect, useRef } from "react";
@@ -32,12 +33,16 @@ export function Hero({ data }: { data: HeroData }) {
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
-        const nameChars = new SplitText(nameRef.current, { type: "chars" });
+        if (!nameRef.current || !subtitleRef.current) return;
+        
+        const nameWords = new SplitText(nameRef.current, { type: "words,chars" });
+        const nameChars = nameWords.chars;
+        
         const subtitleChars = new SplitText(subtitleRef.current, { type: "chars" });
         
         const tl = gsap.timeline();
         
-        tl.from(nameChars.chars, {
+        tl.from(nameChars, {
           opacity: 0,
           y: 20,
           stagger: 0.05,
