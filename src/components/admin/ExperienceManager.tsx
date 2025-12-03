@@ -223,6 +223,7 @@ export function ExperienceManager() {
       title="Work Experience"
       description="Manage your career timeline."
       itemSkeleton={<ItemSkeleton />}
+      transformItemForDisplay={convertTimestampsInItem}
       transformItemForEdit={convertTimestampsInItem}
     />
   );

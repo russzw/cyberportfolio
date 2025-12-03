@@ -27,6 +27,7 @@ interface CrudManagerProps<T extends { id: string }> {
   title: string;
   description: string;
   itemSkeleton: React.ReactNode;
+  transformItemForDisplay?: (item: T) => T;
   transformItemForEdit?: (item: T) => T;
 }
 
@@ -38,7 +39,8 @@ export function CrudManager<T extends { id: string }>({
   title,
   description,
   itemSkeleton,
-  transformItemForEdit
+  transformItemForDisplay,
+  transformItemForEdit,
 }: CrudManagerProps<T>) {
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -54,22 +56,32 @@ export function CrudManager<T extends { id: string }>({
 
     setIsLoading(true);
     const collectionRef = collection(firestore, collectionName);
-    const unsubscribe = onSnapshot(collectionRef, (snapshot) => {
-        const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+    const unsubscribe = onSnapshot(
+      collectionRef,
+      (snapshot) => {
+        let items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+        
+        // Apply display transformation to all items after fetching
+        if (transformItemForDisplay) {
+          items = items.map(item => transformItemForDisplay(item));
+        }
+
         setData(items);
         setIsLoading(false);
-    }, (error) => {
-      console.error(`Error fetching ${collectionName}:`, error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: `Could not fetch ${title}. Check permissions and configuration.`,
-      });
-      setIsLoading(false);
-    });
+      },
+      (error) => {
+        console.error(`Error fetching ${collectionName}:`, error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: `Could not fetch ${title}. Check permissions and configuration.`,
+        });
+        setIsLoading(false);
+      }
+    );
 
     return () => unsubscribe();
-  }, [firestore, collectionName, title, toast]);
+  }, [firestore, collectionName, title, toast, transformItemForDisplay]);
 
   const defaultValues = React.useMemo(() => {
     const parsed = Schema.safeParse({});
@@ -85,16 +97,18 @@ export function CrudManager<T extends { id: string }>({
   });
 
   const handleEdit = (item: T) => {
-    const transformedItem = transformItemForEdit ? transformItemForEdit(item) : item;
-    setEditingItem(transformedItem);
+    const itemForEdit = transformItemForEdit ? transformItemForEdit(item) : item;
+    setEditingItem(itemForEdit);
     setIsDialogOpen(true);
   };
 
   React.useEffect(() => {
     if (isDialogOpen) {
-      form.reset(editingItem || defaultValues);
+      const itemForForm = editingItem || defaultValues;
+      const transformedItem = transformItemForEdit ? transformItemForEdit(itemForForm as T) : itemForForm;
+      form.reset(transformedItem);
     }
-  }, [isDialogOpen, editingItem, form, defaultValues]);
+  }, [isDialogOpen, editingItem, form, defaultValues, transformItemForEdit]);
 
   const handleAddNew = () => {
     setEditingItem(null);
