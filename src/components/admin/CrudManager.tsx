@@ -7,7 +7,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -158,6 +158,9 @@ export function CrudManager<T extends { id: string }>({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingItem ? `Edit ${title.slice(0,-1)}` : `Add New ${title.slice(0,-1)}`}</DialogTitle>
+              <DialogDescription>
+                {editingItem ? `Make changes to this ${title.slice(0, -1).toLowerCase()}.` : `Fill out the form to add a new ${title.slice(0, -1).toLowerCase()}.`}
+              </DialogDescription>
             </DialogHeader>
             <ScrollArea className="max-h-[70vh] -mx-6 px-6">
                 <FormProvider {...form}>
