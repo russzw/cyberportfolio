@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import {
-  FaReact,
   FaAws,
   FaDocker,
   FaNodeJs,
@@ -9,11 +8,11 @@ import {
   FaPython,
   FaHtml5,
   FaCss3,
-  FaSvelte,
-  FaVuejs,
   FaAngular,
   FaGitAlt,
   FaFigma,
+  FaReact,
+  FaVuejs,
 } from 'react-icons/fa';
 import {
   SiTypescript,
@@ -23,6 +22,7 @@ import {
   SiFirebase,
   SiTailwindcss,
   SiJavascript,
+  SiSvelte,
 } from 'react-icons/si';
 import { PanelTop } from 'lucide-react';
 
@@ -42,7 +42,7 @@ export const iconMap: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = 
   javascript: SiJavascript,
   html5: FaHtml5,
   css3: FaCss3,
-  svelte: FaSvelte,
+  svelte: SiSvelte,
   vue: FaVuejs,
   angular: FaAngular,
   git: FaGitAlt,
