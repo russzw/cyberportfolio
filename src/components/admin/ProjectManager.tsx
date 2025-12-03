@@ -37,7 +37,7 @@ const FormFields = (form: any) => {
         <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''}/></FormControl><FormMessage /></FormItem>
       )} />
       <FormField control={form.control} name="description" render={({ field }) => (
-        <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+        <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={4} /></FormControl><FormMessage /></FormItem>
       )} />
       <FormField control={form.control} name="tech" render={({ field }) => (
         <FormItem>

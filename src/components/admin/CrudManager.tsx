@@ -7,12 +7,13 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Skeleton } from '../ui/skeleton';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface CrudManagerProps<T extends { id: string }> {
   collectionName: string;
@@ -61,7 +62,6 @@ export function CrudManager<T extends { id: string }>({
       (snapshot) => {
         let items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
         
-        // Apply display transformation to all items after fetching
         if (transformItemForDisplay) {
           items = items.map(item => transformItemForDisplay(item));
         }
@@ -159,15 +159,19 @@ export function CrudManager<T extends { id: string }>({
             <DialogHeader>
               <DialogTitle>{editingItem ? `Edit ${title.slice(0,-1)}` : `Add New ${title.slice(0,-1)}`}</DialogTitle>
             </DialogHeader>
-            <FormProvider {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                {formFields(form)}
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {editingItem ? 'Save Changes' : 'Create'}
-                </Button>
-              </form>
-            </FormProvider>
+            <ScrollArea className="max-h-[70vh] -mx-6 px-6">
+                <FormProvider {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 grid">
+                    {formFields(form)}
+                     <DialogFooter>
+                        <Button type="submit" disabled={isSubmitting}>
+                          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          {editingItem ? 'Save Changes' : 'Create'}
+                        </Button>
+                    </DialogFooter>
+                  </form>
+                </FormProvider>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       </CardHeader>

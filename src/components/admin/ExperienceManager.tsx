@@ -119,7 +119,7 @@ const FormFields = (form: any) => (
       />
     </div>
     <FormField control={form.control} name="description" render={({ field }) => (
-      <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+      <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={5} /></FormControl><FormMessage /></FormItem>
     )} />
   </>
 );
@@ -201,7 +201,6 @@ const ItemSkeleton = () => (
     </div>
 );
 
-// Helper to convert Firestore Timestamps to JS Dates in an item
 const convertTimestampsInItem = (item: any) => {
   const newItem = { ...item };
   if (newItem.startDate && newItem.startDate instanceof Timestamp) {

@@ -30,7 +30,7 @@ const FormFields = (form: any) => (
       <FormItem><FormLabel>Author's Role</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
     )} />
     <FormField control={form.control} name="text" render={({ field }) => (
-      <FormItem><FormLabel>Testimonial</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+      <FormItem><FormLabel>Testimonial</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={5} /></FormControl><FormMessage /></FormItem>
     )} />
   </>
 );
