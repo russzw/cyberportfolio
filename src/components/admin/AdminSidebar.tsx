@@ -3,23 +3,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Bell,
-  Home,
   Package2,
-  Users,
-  LineChart,
-  Package,
-  ShoppingCart,
   Flame,
   MessageSquareQuote,
   Briefcase,
   Sparkles,
-  User,
   LayoutDashboard,
-  Send
+  Package,
+  Send,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useFirestore } from '@/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -28,7 +26,7 @@ const navLinks = [
   { href: '/admin/skills', label: 'Skills', icon: Sparkles },
   { href: '/admin/experience', label: 'Experience', icon: Briefcase },
   { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
-  { href: '/admin/submissions', label: 'Submissions', icon: Send },
+  { href: '/admin/messages', label: 'Messages', icon: Send },
 ];
 
 interface AdminSidebarProps {
@@ -37,6 +35,19 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
   const pathname = usePathname();
+  const firestore = useFirestore();
+  const [messageCount, setMessageCount] = useState(0);
+
+  useEffect(() => {
+    if (!firestore) return;
+
+    const submissionsCollection = collection(firestore, 'contact_form_submissions');
+    const unsubscribe = onSnapshot(submissionsCollection, (snapshot) => {
+      setMessageCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, [firestore]);
 
   return (
     <div className="flex h-full max-h-screen flex-col gap-2 border-r bg-muted/40">
@@ -60,6 +71,11 @@ export default function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
             >
               <Icon className="h-4 w-4" />
               {label}
+              {label === 'Messages' && messageCount > 0 && (
+                <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                  {messageCount}
+                </Badge>
+              )}
             </Link>
           ))}
         </nav>
