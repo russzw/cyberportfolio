@@ -38,8 +38,9 @@ export async function submitContactForm(
       message: "Please correct the errors below.",
     };
   }
-
-  if (!adminDb) {
+  
+  const adminDbInstance = adminDb();
+  if (!adminDbInstance) {
      return {
       success: false,
       message: "Server is not configured to receive messages. Please set FIREBASE_SERVICE_ACCOUNT.",
@@ -48,8 +49,9 @@ export async function submitContactForm(
   }
 
   try {
-    await adminDb.collection("contact_form_submissions").add({
+    await adminDbInstance.collection("contact_form_submissions").add({
       ...validatedFields.data,
+      isRead: false,
       createdAt: FieldValue.serverTimestamp(),
     });
 

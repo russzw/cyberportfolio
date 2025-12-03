@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, deleteDoc, updateDoc, where, onSnapshot } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -10,12 +10,15 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Inbox } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { cn } from '@/lib/utils';
+import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface Submission {
   id: string;
   name: string;
   email: string;
   message: string;
+  isRead?: boolean;
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -42,32 +45,36 @@ export function MessagesManager() {
   }, [firestore]);
 
   useEffect(() => {
-    async function fetchSubmissions() {
-      if (!submissionsQuery) return;
-      setIsLoading(true);
-      try {
-        const querySnapshot = await getDocs(submissionsQuery);
+    if (!submissionsQuery) return;
+    
+    setIsLoading(true);
+    const unsubscribe = onSnapshot(submissionsQuery, (querySnapshot) => {
         const fetchedSubmissions = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Submission[];
         setSubmissions(fetchedSubmissions);
-      } catch (error) {
+        setIsLoading(false);
+    }, (error) => {
         console.error("Error fetching submissions:", error);
         toast({
           variant: 'destructive',
           title: 'Error fetching messages',
           description: 'Could not retrieve messages. Please check permissions.',
         });
-      } finally {
         setIsLoading(false);
-      }
-    }
-    fetchSubmissions();
+    });
+
+    return () => unsubscribe();
   }, [submissionsQuery, toast]);
+
+  const handleToggleRead = (submission: Submission) => {
+    if (submission.isRead || !firestore) return;
+    const docRef = doc(firestore, 'contact_form_submissions', submission.id);
+    updateDocumentNonBlocking(docRef, { isRead: true });
+  };
 
   const handleDelete = async (id: string) => {
     if (!firestore || !window.confirm('Are you sure you want to delete this message?')) return;
     try {
       await deleteDoc(doc(firestore, 'contact_form_submissions', id));
-      setSubmissions(submissions.filter(sub => sub.id !== id));
       toast({ title: 'Success', description: 'Message deleted.' });
     } catch (error) {
       console.error("Error deleting submission:", error);
@@ -93,14 +100,20 @@ export function MessagesManager() {
             <SubmissionSkeleton />
           </div>
         ) : submissions.length > 0 ? (
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full" onValueChange={(id) => {
+              const submission = submissions.find(s => s.id === id);
+              if (submission) {
+                handleToggleRead(submission);
+              }
+          }}>
             {submissions.map(sub => (
               <AccordionItem key={sub.id} value={sub.id}>
                 <AccordionTrigger>
                   <div className="flex justify-between items-center w-full pr-4">
-                    <div className='text-left'>
-                      <span className="font-semibold">{sub.name}</span>
-                      <span className="text-sm text-muted-foreground ml-2 truncate">({sub.email})</span>
+                    <div className='flex items-center text-left'>
+                      <div className={cn("h-2.5 w-2.5 rounded-full mr-3 shrink-0", !sub.isRead ? "bg-primary" : "bg-transparent")} />
+                      <span className={cn("font-semibold", !sub.isRead && "text-foreground")}>{sub.name}</span>
+                      <span className="text-sm text-muted-foreground ml-2 truncate hidden sm:inline">({sub.email})</span>
                     </div>
                     <span className="text-xs text-muted-foreground shrink-0 ml-4">
                       {sub.createdAt ? formatDistanceToNow(new Date(sub.createdAt.seconds * 1000), { addSuffix: true }) : 'Just now'}
@@ -108,7 +121,7 @@ export function MessagesManager() {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="p-4 bg-muted/50 rounded-md">
+                  <div className="p-4 bg-muted/50 rounded-md ml-5">
                     <p className="whitespace-pre-wrap text-muted-foreground">{sub.message}</p>
                     <div className="text-right mt-4">
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(sub.id)}>

@@ -5,16 +5,18 @@ import { getFirestore } from 'firebase-admin/firestore';
 let adminApp: App | null = null;
 
 function initializeAdminApp() {
+  // If already initialized, do nothing.
   if (getApps().some(app => app?.name === 'firebase-admin-app')) {
-     adminApp = getApps().find(app => app?.name === 'firebase-admin-app') || null;
-     return;
+    adminApp = getApps().find(app => app?.name === 'firebase-admin-app') || null;
+    return;
   }
 
+  // Otherwise, try to initialize.
   try {
     const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
     if (!serviceAccount) {
-      // Don't throw here, let getAdminDb handle the null case
       console.warn('FIREBASE_SERVICE_ACCOUNT is not set. Admin features will be disabled.');
+      adminApp = null;
       return;
     }
     
@@ -24,21 +26,18 @@ function initializeAdminApp() {
 
   } catch (e: any) {
     console.error('Firebase Admin SDK initialization error:', e.message);
-    // Don't throw, allow the app to run without admin features
     adminApp = null;
   }
 }
 
-
-function getAdminDb() {
-    if (!adminApp) {
-        initializeAdminApp();
-    }
-    if (!adminApp) {
-        // Return null if initialization failed
-        return null;
-    }
-    return getFirestore(adminApp);
+// This function will be the single entry point to get the admin DB.
+// It ensures initialization is attempted only when needed.
+export function adminDb() {
+  if (!adminApp) {
+    initializeAdminApp();
+  }
+  if (!adminApp) {
+    return null; // Return null if initialization failed.
+  }
+  return getFirestore(adminApp);
 }
-
-export const adminDb = getAdminDb();

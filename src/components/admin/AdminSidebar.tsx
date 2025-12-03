@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useFirestore } from '@/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,8 +41,8 @@ export default function AdminSidebar({ onLinkClick }: AdminSidebarProps) {
   useEffect(() => {
     if (!firestore) return;
 
-    const submissionsCollection = collection(firestore, 'contact_form_submissions');
-    const unsubscribe = onSnapshot(submissionsCollection, (snapshot) => {
+    const unreadQuery = query(collection(firestore, 'contact_form_submissions'), where('isRead', '!=', true));
+    const unsubscribe = onSnapshot(unreadQuery, (snapshot) => {
       setMessageCount(snapshot.size);
     });
 
